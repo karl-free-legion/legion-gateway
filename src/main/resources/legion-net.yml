@@ -1,0 +1,6 @@
+net:
+  serverUrls:
+    - tcp://127.0.0.1:8849
+  node:
+    nodeId: legion-gateway # node ID, default: demo
+    groupId: legion-gateway # group ID, default: test
