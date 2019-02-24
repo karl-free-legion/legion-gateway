@@ -1,5 +1,6 @@
 package com.zcs.legion.gateway;
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
@@ -7,6 +8,8 @@ import com.google.protobuf.util.JsonFormat;
 import com.legion.client.api.FailResult;
 import com.legion.client.api.sample.T;
 import com.zcs.legion.gateway.config.Constants;
+import com.zcs.legion.gateway.result.R;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -46,6 +49,7 @@ public class GatewayApplicationTests {
 
 
     @Test
+    @Ignore
     public void future(){
         final FailResult result = FailResult.builder().code(2000).message("Hello World.").build();
         final CompletableFuture<String> successful = new CompletableFuture<>();
@@ -60,6 +64,24 @@ public class GatewayApplicationTests {
         log.info("===>{}", obj);
     }
 
+    @Test
+    public void toJsonObject() throws InvalidProtocolBufferException {
+        String item = "{\n" +
+                "    \"code\": 0,\n" +
+                "    \"message\": \"{\\n  \\\"message\\\": \\\"Amazed! Query Time: 2019-02-24 14:42:54\\\"\\n}\"\n" +
+                "}";
+
+        FailResult fail = FailResult.builder().code(1000).message("Hello").build();
+        R result = R.success(fail);
+
+        T.SampleMessage message = T.SampleMessage.newBuilder().setMessage("OK").build();
+        String messageJson = JsonFormat.printer().print(message.toBuilder());
+
+        log.info("===>R: {}", JSON.toJSONString(result));
+        log.info("===>M: {}", JSON.parseObject(messageJson, M.class));
+        log.info("===>{}", JSON.parseObject(item, R.class));
+    }
+
     private Message.Builder getMessageBuilder(Class<? extends Message> clazz) {
         try {
             Method method = clazz.getMethod("newBuilder");
@@ -67,5 +89,10 @@ public class GatewayApplicationTests {
         } catch (Exception var3) {
             throw new HttpMessageConversionException("Invalid Protobuf Message type: no invocable newBuilder() method on " + clazz, var3);
         }
+    }
+
+    @Data
+    static class M{
+        String message;
     }
 }
