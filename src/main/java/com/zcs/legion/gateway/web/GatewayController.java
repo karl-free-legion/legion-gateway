@@ -35,7 +35,7 @@ public class GatewayController {
 
     @RequestMapping(value = "/{type}/{groupId}/{tag}", method = RequestMethod.POST)
     public R dispatch(@PathVariable String type, @PathVariable String groupId,
-                      @PathVariable String tag, @RequestBody String body) throws InvalidProtocolBufferException {
+                      @PathVariable String tag, @RequestBody String body) {
         REQUEST_TOTAL.increment();
 
         if(log.isDebugEnabled()){
@@ -66,7 +66,11 @@ public class GatewayController {
         connector.sendMessage(groupId, tag, builder.build(), handler, reply);
         Object result = CompletableFuture.anyOf(successful, failure).join();
         if(result instanceof Message){
-            result = JsonFormat.printer().print((Message)result);
+            try {
+                result = JsonFormat.printer().print((Message)result);
+            } catch (InvalidProtocolBufferException e) {
+                log.error("===>protoBuf Message -> Json error. ", e);
+            }
         }
         return R.success(result);
     }
