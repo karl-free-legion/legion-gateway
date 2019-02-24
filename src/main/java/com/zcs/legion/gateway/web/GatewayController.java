@@ -1,11 +1,13 @@
 package com.zcs.legion.gateway.web;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
+import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
-import com.zcs.legion.gateway.Constants;
+import com.zcs.legion.gateway.config.Constants;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * GatewayController
@@ -32,7 +35,7 @@ public class GatewayController {
 
     @RequestMapping(value = "/{type}/{groupId}/{tag}", method = RequestMethod.POST)
     public R dispatch(@PathVariable String type, @PathVariable String groupId,
-                      @PathVariable String tag, @RequestBody String body){
+                      @PathVariable String tag, @RequestBody String body) throws InvalidProtocolBufferException {
         REQUEST_TOTAL.increment();
 
         if(log.isDebugEnabled()){
@@ -52,16 +55,20 @@ public class GatewayController {
         Class<?extends Message> request = entry.getKey();
         Class<?extends Message> reply = entry.getValue();
 
+        final CompletableFuture<Message> successful = new CompletableFuture<>();
+        final CompletableFuture<FailResult> failure = new CompletableFuture<>();
+
         //发送消息
         Message.Builder builder = this.getMessageBuilder(request, body);
-        SenderHandler handler = SenderHandlerFactory.create(success->{
-            log.info("===>code: {}, msg: {}", success);
-        }, fail->{
-            log.info("===>Code: {}, Message: {}", fail.getCode(), fail.getMessage());
-        });
+        SenderHandler handler = SenderHandlerFactory.create(successful::complete, failure::complete);
 
+        //发送完成, 异步等待结果
         connector.sendMessage(groupId, tag, builder.build(), handler, reply);
-        return R.error(-1000, "处理错误");
+        Object result = CompletableFuture.anyOf(successful, failure).join();
+        if(result instanceof Message){
+            result = JsonFormat.printer().print((Message)result);
+        }
+        return R.success(result);
     }
 
     /**

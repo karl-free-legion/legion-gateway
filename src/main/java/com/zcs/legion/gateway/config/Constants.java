@@ -1,4 +1,4 @@
-package com.zcs.legion.gateway;
+package com.zcs.legion.gateway.config;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
