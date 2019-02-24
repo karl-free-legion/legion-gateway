@@ -7,6 +7,7 @@ import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
+import com.legion.core.XHelper;
 import com.zcs.legion.gateway.config.Constants;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
@@ -33,6 +34,14 @@ public class GatewayController {
     @Autowired
     private LegionConnector connector;
 
+    /**
+     * 消息转发处理
+     * @param type      消息类型, M/P
+     * @param groupId   GroupID
+     * @param tag       标签
+     * @param body      消息体
+     * @return          返回结果
+     */
     @RequestMapping(value = "/{type}/{groupId}/{tag}", method = RequestMethod.POST)
     public R dispatch(@PathVariable String type, @PathVariable String groupId,
                       @PathVariable String tag, @RequestBody String body) {
@@ -59,7 +68,7 @@ public class GatewayController {
         final CompletableFuture<FailResult> failure = new CompletableFuture<>();
 
         //发送消息
-        Message.Builder builder = this.getMessageBuilder(request, body);
+        Message.Builder builder = XHelper.messageBuilder(body, request);
         SenderHandler handler = SenderHandlerFactory.create(successful::complete, failure::complete);
 
         //发送完成, 异步等待结果
@@ -73,24 +82,5 @@ public class GatewayController {
             }
         }
         return R.success(result);
-    }
-
-    /**
-     * 消息转换
-     * @param clazz Message
-     * @return      Object
-     */
-    private Message.Builder getMessageBuilder(Class<? extends Message> clazz, String data) {
-        try {
-            Method method = clazz.getMethod("newBuilder");
-            Message.Builder builder = (Message.Builder)method.invoke(clazz);
-            if(StringUtils.isNotBlank(data)){
-                JsonFormat.parser().merge(data, builder);
-            }
-
-            return builder;
-        } catch (Exception e) {
-            throw new HttpMessageConversionException("Invalid Message type: no invoke newBuilder() method on " + clazz, e);
-        }
     }
 }

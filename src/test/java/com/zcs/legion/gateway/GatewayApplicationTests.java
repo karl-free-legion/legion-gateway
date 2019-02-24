@@ -9,6 +9,7 @@ import com.legion.client.api.FailResult;
 import com.legion.client.api.sample.T;
 import com.zcs.legion.gateway.config.Constants;
 import com.zcs.legion.gateway.result.R;
+import io.netty.util.concurrent.CompleteFuture;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Ignore;
@@ -18,6 +19,7 @@ import org.springframework.http.converter.HttpMessageConversionException;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,6 +67,7 @@ public class GatewayApplicationTests {
     }
 
     @Test
+    @Ignore
     public void toJsonObject() throws InvalidProtocolBufferException {
         String item = "{\n" +
                 "    \"code\": 0,\n" +
@@ -80,6 +83,23 @@ public class GatewayApplicationTests {
         log.info("===>R: {}", JSON.toJSONString(result));
         log.info("===>M: {}", JSON.parseObject(messageJson, M.class));
         log.info("===>{}", JSON.parseObject(item, R.class));
+    }
+
+    @Test
+    public void completeFuture() throws ExecutionException, InterruptedException {
+        CompletableFuture<Object> future = new CompletableFuture<>();
+        FailResult fail = FailResult.builder().code(1000).message("Hello").build();
+        service.submit(()->{
+            try {
+                Thread.sleep(1000L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            //future.complete("hello world.");
+            future.completeExceptionally(new RuntimeException("xxx"));
+        });
+
+        log.info("===>{}", future.get());
     }
 
     private Message.Builder getMessageBuilder(Class<? extends Message> clazz) {
