@@ -8,18 +8,16 @@ import com.legion.client.common.LegionConnector;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
 import com.legion.core.XHelper;
-import com.zcs.legion.gateway.config.Constants;
+import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.Method;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -33,6 +31,8 @@ public class GatewayController {
     private final Counter REQUEST_TOTAL = Metrics.counter(" http_req_total", "Legion-Gateway", "reg_node_total");
     @Autowired
     private LegionConnector connector;
+    @Autowired
+    private GroupTag groupTag;
 
     /**
      * 消息转发处理
@@ -52,17 +52,14 @@ public class GatewayController {
         }
 
         //根据key, 获取注册到legion上Module
-        String key = groupId + StringUtils.capitalize(tag);
-        Map<Class<?extends Message>, Class<?extends Message>> input = Constants.table.row(key);
-        if(input == null || input.isEmpty()){
-            log.warn("===>Current key not register legion{}", key);
+        List<GroupTag.GroupTable> tables = groupTag.getGroups().get(groupId);
+        Optional<GroupTag.GroupTable>table = tables.stream().filter(e->e.getTag().equalsIgnoreCase(tag)).findFirst();
+        if(!table.isPresent()){
             return R.error(-1000, "请求的Module尚未注册.");
         }
 
-        //根据key获取RequestMessage/ReplyMessage
-        Map.Entry<Class<?extends Message>, Class<?extends Message>> entry = input.entrySet().iterator().next();
-        Class<?extends Message> request = entry.getKey();
-        Class<?extends Message> reply = entry.getValue();
+        Class<?extends Message> request = table.get().getInput();
+        Class<?extends Message> reply = table.get().getOutput();
 
         final CompletableFuture<Message> successful = new CompletableFuture<>();
         final CompletableFuture<FailResult> failure = new CompletableFuture<>();
@@ -81,6 +78,7 @@ public class GatewayController {
                 log.error("===>protoBuf Message -> Json error. ", e);
             }
         }
+
         return R.success(result);
     }
 }
