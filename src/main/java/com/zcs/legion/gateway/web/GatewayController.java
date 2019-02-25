@@ -5,12 +5,9 @@ import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
-import com.legion.client.config.LegionProperties;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
 import com.legion.core.XHelper;
-import com.legion.net.Constants;
-import com.legion.net.NetConfig;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
@@ -83,18 +80,5 @@ public class GatewayController {
         }
 
         return R.success(result);
-    }
-
-    //============================
-    @Autowired
-    private LegionProperties properties;
-    @RequestMapping(value = "app")
-    public R app(){
-        return R.success(properties);
-    }
-
-    @RequestMapping(value = "app1")
-    public R app1(){
-        return R.success(Constants.getNet());
     }
 }
