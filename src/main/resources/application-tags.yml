@@ -7,6 +7,9 @@ tags:
       - tag: query
         input: com.legion.client.api.sample.T.SampleMessage
         output: com.legion.client.api.sample.T.SampleMessage
+      - tag: list
+        input: com.legion.client.api.sample.T.SampleMessage
+        output: com.legion.client.api.sample.T.SampleMessage
     tsm:
       - tag: add
         input: com.legion.client.api.sample.T.TMessage
