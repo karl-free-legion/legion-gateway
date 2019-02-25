@@ -5,9 +5,12 @@ import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
+import com.legion.client.config.LegionProperties;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
 import com.legion.core.XHelper;
+import com.legion.net.Constants;
+import com.legion.net.NetConfig;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
@@ -30,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 public class GatewayController {
     private final Counter REQUEST_TOTAL = Metrics.counter(" http_req_total", "Legion-Gateway", "reg_node_total");
     @Autowired
-    private LegionConnector connector;
+    private LegionConnector legionConnector;
     @Autowired
     private GroupTag groupTag;
 
@@ -69,7 +72,7 @@ public class GatewayController {
         SenderHandler handler = SenderHandlerFactory.create(successful::complete, failure::complete);
 
         //发送完成, 异步等待结果
-        connector.sendMessage(groupId, tag, builder.build(), handler, reply);
+        legionConnector.sendMessage(groupId, tag, builder.build(), handler, reply);
         Object result = CompletableFuture.anyOf(successful, failure).join();
         if(result instanceof Message){
             try {
@@ -80,5 +83,18 @@ public class GatewayController {
         }
 
         return R.success(result);
+    }
+
+    //============================
+    @Autowired
+    private LegionProperties properties;
+    @RequestMapping(value = "app")
+    public R app(){
+        return R.success(properties);
+    }
+
+    @RequestMapping(value = "app1")
+    public R app1(){
+        return R.success(Constants.getNet());
     }
 }

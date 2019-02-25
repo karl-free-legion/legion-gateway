@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author lance
  * @since 2019.2.23 16:41
  */
-@SpringBootApplication(scanBasePackages = {"com.zcs.legion.gateway", "com.legion.client"})
+@SpringBootApplication
 public class GatewayApplication {
 
     public static void main(String[] args) {

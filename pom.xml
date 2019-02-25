@@ -26,9 +26,9 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.zcs</groupId>
-            <artifactId>legion-client</artifactId>
-            <version>1.0.2</version>
+            <groupId>com.zcs.boot</groupId>
+            <artifactId>spring-boot-starter-legion-client</artifactId>
+            <version>1.0.3</version>
         </dependency>
 
         <!-- Commons -->
