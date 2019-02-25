@@ -10,6 +10,19 @@ tags:
       - tag: list
         input: com.legion.client.api.sample.T.SampleMessage
         output: com.legion.client.api.sample.T.SampleMessage
+      - tag: userSelect
+        input: com.legion.client.api.demo.User.QueryUserInfoReq
+        output: com.legion.client.api.demo.User.UserInfo
+      - tag: userDelete
+        input: com.legion.client.api.demo.User.DeleteUserReq
+        output: com.legion.client.api.demo.User.EmptyMessage
+      - tag: userAdd
+        input: com.legion.client.api.demo.User.UserInfo
+        output: com.legion.client.api.demo.User.AddUserRes
+      - tag: userUpdate
+        input: com.legion.client.api.demo.User.UserInfo
+        output: com.legion.client.api.demo.User.EmptyMessage
+
     tsm:
       - tag: add
         input: com.legion.client.api.sample.T.TMessage
