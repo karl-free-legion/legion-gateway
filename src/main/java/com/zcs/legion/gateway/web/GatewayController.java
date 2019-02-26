@@ -8,6 +8,7 @@ import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
+import com.legion.core.LegionException;
 import com.legion.core.XHelper;
 import com.legion.core.api.X;
 import com.zcs.legion.gateway.config.GroupTag;
@@ -16,6 +17,9 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.Metrics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -122,12 +126,12 @@ public class GatewayController {
      * @return
      */
     @RequestMapping(value = "/**/*", method = RequestMethod.POST)
-    public String dispatchAgent(HttpServletRequest request, @RequestBody String body){
+    public ResponseEntity<String> dispatchAgent(HttpServletRequest request, @RequestBody String body){
 
         GroupTag.AgentTag agentTag = getAgentTag(request.getRequestURI());
         log.info("dispatch agent ,request uri: {}, tag: {}", request.getRequestURI(), agentTag);
         if(agentTag==null){
-            return "error";
+            return ResponseEntity.badRequest().body("error");
         }
 //        request.get
         X.XAgentRequest.Builder agentRequest = X.XAgentRequest.newBuilder();
@@ -139,31 +143,28 @@ public class GatewayController {
         }
         agentRequest.setBody(ByteString.copyFromUtf8(body));
 
-        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        CompletableFuture<X.XAgentResponse> completableFuture = new CompletableFuture<>();
         SenderHandler<X.XAgentResponse> handler = SenderHandlerFactory.create(success->{
             //handler success
             log.info("response success: {}", success);
-            completableFuture.complete(success.getBody().toStringUtf8());
+            completableFuture.complete(success);
         }, fail->{
             //handler
             log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
-            completableFuture.complete(String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage()));
+            String errorMsg = String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage());
+            completableFuture.completeExceptionally(LegionException.valueOf(errorMsg));
         });
 
         log.info("===> start message.");
         legionConnector.sendMessage(agentTag.getGroupId(), agentTag.getTag(), agentRequest.build(), handler, X.XAgentResponse.class);
         try {
-            String m = completableFuture.get(1, TimeUnit.MINUTES);
+            X.XAgentResponse m = completableFuture.get(1, TimeUnit.MINUTES);
             log.info("completable future completed. m={}", m);
-            return m;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
-        }
+            return ResponseEntity.status(m.getStatus()).contentType(MediaType.APPLICATION_JSON).body(m.getBody().toStringUtf8());
+        } catch (Exception e) {
+            log.debug("gateway error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 
-        return "timeout";
+        }
     }
 }
