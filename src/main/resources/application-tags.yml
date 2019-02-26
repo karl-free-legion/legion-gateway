@@ -26,3 +26,8 @@ tags:
       - tag: add
         input: com.legion.client.api.sample.T.TMessage
         output: com.legion.client.api.sample.T.TMessage
+
+  agentTags:
+    - tag: tsm
+      groupId: agent
+      prefix: /tsm

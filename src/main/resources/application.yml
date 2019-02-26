@@ -14,7 +14,7 @@ server:
     min-spare-threads: 30
   connection-timeout: 5000
   servlet:
-    context-path: /gateway
+    context-path: /
 
 # management
 management:
