@@ -143,7 +143,7 @@ public class GatewayController {
         SenderHandler<X.XAgentResponse> handler = SenderHandlerFactory.create(success->{
             //handler success
             log.info("response success: {}", success);
-            completableFuture.complete(success.toString());
+            completableFuture.complete(success.getBody().toStringUtf8());
         }, fail->{
             //handler
             log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
