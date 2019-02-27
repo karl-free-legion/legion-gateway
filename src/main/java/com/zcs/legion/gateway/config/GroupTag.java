@@ -20,11 +20,19 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "tags")
 public class GroupTag {
     Map<String, List<GroupTable>> groups;
+    List<AgentTag> agentTags;
 
     @Data
     public static class GroupTable{
         private String tag;
         private Class<? extends Message> input;
         private Class<? extends Message> output;
+    }
+
+    @Data
+    public static class AgentTag{
+        private String tag;
+        private String groupId;
+        private String prefix;
     }
 }
