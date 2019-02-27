@@ -8,9 +8,9 @@ import com.legion.client.api.FailResult;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
-import com.legion.core.LegionException;
-import com.legion.core.XHelper;
 import com.legion.core.api.X;
+import com.legion.core.exception.LegionException;
+import com.legion.core.utils.XHelper;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import io.micrometer.core.instrument.Counter;
@@ -27,9 +27,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * GatewayController
