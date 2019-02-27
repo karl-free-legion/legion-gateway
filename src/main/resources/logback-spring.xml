@@ -10,7 +10,7 @@
             <pattern>${FILE_LOG_PATTERN}</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${logging.path}/zcs-permission.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${logging.path}/zcs-legion-gateway.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxHistory>30</maxHistory>
             <maxFileSize>256MB</maxFileSize>
             <totalSizeCap>20GB</totalSizeCap>
