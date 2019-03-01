@@ -1,6 +1,6 @@
 tags:
   groups:
-    account:
+    sample:
       - tag: add
         input: com.legion.client.api.sample.T.SampleMessage
         output: com.legion.client.api.sample.T.SampleMessage
