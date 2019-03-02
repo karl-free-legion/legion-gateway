@@ -154,14 +154,10 @@ public class GatewayController {
     }
 
     /**
-     * 消息转发处理（代理）
-     * @param request
-     * @param body
-     * @return
+     * 消息转发处理(代理)固定报文形式
      */
     @RequestMapping(value = "/**/*", method = RequestMethod.POST)
     public ResponseEntity<String> dispatchAgent(HttpServletRequest request, @RequestBody String body){
-
         GroupTag.AgentTag agentTag = getAgentTag(request.getRequestURI());
         log.info("dispatch agent ,request uri: {}, tag: {}", request.getRequestURI(), agentTag);
         if(agentTag==null){
@@ -179,18 +175,16 @@ public class GatewayController {
 
         CompletableFuture<X.XAgentResponse> completableFuture = new CompletableFuture<>();
         SenderHandler<X.XAgentResponse> handler = SenderHandlerFactory.create(success->{
-            //handler success
             log.info("response success: {}", success);
             completableFuture.complete(success);
         }, fail->{
-            //handler
             log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
             String errorMsg = String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage());
             completableFuture.completeExceptionally(LegionException.valueOf(errorMsg));
         });
 
-        log.info("===> start message.");
-        //legionConnector.sendMessage(agentTag.getGroupId(), agentTag.getTag(), agentRequest.build(), handler, X.XAgentResponse.class);
+        RequestDescriptor descriptor = GatewayUtils.create(agentRequest.getHeadersOrDefault("content-type", MediaType.APPLICATION_JSON_VALUE), agentTag.getTag());
+        legionConnector.sendMessage(agentTag.getGroupId(), descriptor, agentRequest.build(), handler, X.XAgentResponse.newBuilder());
         try {
             X.XAgentResponse m = completableFuture.get(1, TimeUnit.MINUTES);
             log.info("completable future completed. m={}", m);
@@ -198,7 +192,6 @@ public class GatewayController {
         } catch (Exception e) {
             log.debug("gateway error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-
         }
     }
 }
