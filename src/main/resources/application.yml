@@ -30,14 +30,13 @@ logging:
   level:
     org.springframework: info
     com.zcs.legion.gateway: debug
-    com.legion.client: debug
-    com.legion.net: debug
+    com.legion: debug
 
 #legion config
 legion:
   net:
     serverUrls:
-      - tcp://127.0.0.1:8849
+      - tcp://127.0.0.1:8850
     node:
       nodeId: legion-gateway
       groupId: legion-gateway
