@@ -6,7 +6,7 @@ spring:
   cloud:
     config:
       label: master
-      fail-fast: true
+      fail-fast: false # dev/test
       discovery:
         enabled: true
         service-id: zcs-config-manage
