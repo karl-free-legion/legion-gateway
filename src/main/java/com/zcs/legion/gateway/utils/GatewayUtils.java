@@ -4,6 +4,9 @@ import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
 import org.springframework.http.MediaType;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+
 /**
  * GatewayUtils
  * @author lance
@@ -42,13 +45,33 @@ public final class GatewayUtils {
     }
 
     /**
+     * 创建XHttpRequest
+     * @param request HttpServletRequest
+     * @param body    请求body
+     * @return        XHttpRequest
+     */
+    public static X.XHttpRequest httpRequest(HttpServletRequest request, String body){
+        X.XHttpRequest.Builder builder = X.XHttpRequest.newBuilder()
+                .setBody(body)
+                .setRequestURI(request.getRequestURI());
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while(headerNames.hasMoreElements()){
+            String headerName = headerNames.nextElement();
+            builder.putHeaders(headerName, request.getHeader(headerName));
+        }
+        return builder.build();
+    }
+
+    /**
      * 创建RequestDescriptor
      * @param contentType contentType
      * @param tag         tag
      * @return            RequestDescriptor
      */
     public static RequestDescriptor create(String contentType, String tag){
-        X.XDataFormat format = toFormat(contentType);
+        //X.XDataFormat format = toFormat(contentType);
+        X.XDataFormat format = X.XDataFormat.PB;
         return RequestDescriptor.builder()
                 .acceptType(format)
                 .contentType(format)
