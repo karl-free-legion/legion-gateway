@@ -2,6 +2,7 @@ package com.zcs.legion.gateway.utils;
 
 import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,6 +54,7 @@ public final class GatewayUtils {
     public static X.XHttpRequest httpRequest(HttpServletRequest request, String body){
         X.XHttpRequest.Builder builder = X.XHttpRequest.newBuilder()
                 .setBody(body)
+                .setHost(host(request))
                 .setRequestURI(request.getRequestURI());
 
         Enumeration<String> headerNames = request.getHeaderNames();
@@ -61,6 +63,14 @@ public final class GatewayUtils {
             builder.putHeaders(headerName, request.getHeader(headerName));
         }
         return builder.build();
+    }
+
+    private static String host(HttpServletRequest request) {
+        String remoteIp = request.getHeader("X-FORWARDED-FOR");
+        if (StringUtils.isBlank(remoteIp)) {
+            remoteIp = request.getRemoteAddr();
+        }
+        return remoteIp;
     }
 
     /**

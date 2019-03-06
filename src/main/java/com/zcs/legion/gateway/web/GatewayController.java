@@ -70,6 +70,7 @@ public class GatewayController {
 
         try {
             RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
+            descriptor.setSource(X.XReqSource.HTTP);
             Single<X.XHttpResponse> response = legionConnector.sendMessage(groupId, descriptor, req, X.XHttpResponse.newBuilder());
             X.XHttpResponse obj = response.blockingGet();
             return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(R.success(obj.getBody()));
