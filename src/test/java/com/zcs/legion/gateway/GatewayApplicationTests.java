@@ -59,6 +59,7 @@ public class GatewayApplicationTests {
     }
 
     @Test
+    @Ignore
     public void completeFuture() throws ExecutionException, InterruptedException {
         CompletableFuture<Object> future = new CompletableFuture<>();
         FailResult fail = FailResult.builder().code(1000).message("Hello").build();
@@ -87,5 +88,10 @@ public class GatewayApplicationTests {
     @Data
     static class M{
         String message;
+    }
+
+    @Test
+    public void slash(){
+        log.info("===>{}", "a"+"b");
     }
 }

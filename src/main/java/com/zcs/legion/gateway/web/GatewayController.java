@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -50,16 +51,49 @@ public class GatewayController {
     }
 
     /**
+     * 定义请求类型
+     * @return ResponseEntity
+     */
+    @RequestMapping(value = "/{groupId:[A-z]*}/**", method = RequestMethod.POST)
+    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody String body, HttpServletRequest request) {
+        if(log.isDebugEnabled()){
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+
+        ResponseEntity<R>entity;
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId+"/");
+
+        //代理定义, 流程定义, Module请求
+        if(groupTag.getAgentTags().stream().anyMatch(a->a.getGroupId().equalsIgnoreCase(groupId))){
+            entity = broker(request, body);
+        }else if(groupTag.getProcess().contains(groupId)){
+            entity = simple("P", groupId, tag, body, request);
+        }else {
+            entity = simple("M", groupId, tag, body, request);
+        }
+
+        return entity;
+    }
+
+    /**
      * 消息转发处理(简单消息）
      * @param groupId   GroupID
      * @param tag       标签
      * @param body      消息体
      * @return          返回结果
      */
-    @RequestMapping(value = "/{type:m|p}/{groupId}/{tag}", method = RequestMethod.POST)
+    @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
                             @RequestBody String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
+        return simple(type, groupId, tag, body, request);
+    }
+
+    /**
+     * 定义简单流程
+     * @return ResponseEntity
+     */
+    private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request){
         if(log.isDebugEnabled()){
             log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
         }
@@ -85,14 +119,14 @@ public class GatewayController {
     }
 
     /**
-     * 消息转发处理(代理)固定报文形式
+     * 代理请求处理
+     * @return ResponseEntity
      */
-    @RequestMapping(value = "/**/*", method = RequestMethod.POST)
-    public ResponseEntity<String> dispatchAgent(HttpServletRequest request, @RequestBody String body){
+    private ResponseEntity<R> broker(HttpServletRequest request, String body){
         GroupTag.AgentTag agentTag = getAgentTag(request.getRequestURI());
         log.info("dispatch agent ,request uri: {}, tag: {}", request.getRequestURI(), agentTag);
-        if(agentTag==null){
-            return ResponseEntity.badRequest().body("error");
+        if(agentTag == null){
+            return ResponseEntity.badRequest().body(R.error(-100, "Error."));
         }
 
         X.XHttpRequest.Builder agentRequest = X.XHttpRequest.newBuilder();
@@ -105,10 +139,8 @@ public class GatewayController {
         agentRequest.setBody(body);
 
         CompletableFuture<X.XHttpResponse> completableFuture = new CompletableFuture<>();
-        SenderHandler<X.XHttpResponse> handler = SenderHandlerFactory.create(success->{
-            log.info("response success: {}", success);
-            completableFuture.complete(success);
-        }, fail->{
+        SenderHandler<X.XHttpResponse> handler = SenderHandlerFactory.create(
+                completableFuture::complete, fail->{
             log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
             String errorMsg = String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage());
             completableFuture.completeExceptionally(LegionException.valueOf(errorMsg));
@@ -118,11 +150,10 @@ public class GatewayController {
         legionConnector.sendMessage(agentTag.getGroupId(), descriptor, agentRequest.build(), handler, X.XHttpResponse.newBuilder());
         try {
             X.XHttpResponse m = completableFuture.get(1, TimeUnit.MINUTES);
-            log.info("completable future completed. m={}", m);
-            return ResponseEntity.status(m.getStatus()).contentType(MediaType.APPLICATION_JSON).body(m.getBody());
+            return ResponseEntity.status(m.getStatus()).contentType(MediaType.APPLICATION_JSON).body(R.success(m.getBody()));
         } catch (Exception e) {
-            log.debug("gateway error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            log.warn("gateway error", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
         }
     }
 }

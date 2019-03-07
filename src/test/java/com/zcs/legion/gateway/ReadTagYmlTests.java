@@ -17,6 +17,6 @@ public class ReadTagYmlTests {
 
     @Test
     public void app(){
-        log.info("===>{}", groupTag.getGroups());
+        log.info("===>{}", groupTag);
     }
 }

@@ -1,18 +1,16 @@
 tags:
-  groups:
-    sample:
-      - tag: add
-        input: com.legion.client.api.sample.T.SampleMessage
-        output: com.legion.client.api.sample.T.SampleMessage
-      - tag: query
-        input: com.legion.client.api.sample.T.SampleMessage
-        output: com.legion.client.api.sample.T.SampleMessage
-    tsm:
-      - tag: add
-        input: com.legion.client.api.sample.T.TMessage
-        output: com.legion.client.api.sample.T.TMessage
+  modules:
+    - account
+    - sample
+
+  process:
+    - applyCard
+    - applyFee
 
   agentTags:
     - tag: tsm
       groupId: agent
       prefix: /tsm
+    - tag: apps
+      groupId: agent
+      prefix: /apps
