@@ -1,9 +1,17 @@
 spring:
   application:
-    name: legion-gateway
+    name: zcs-legion-gateway
   profiles:
-    include:
-      - tags
+    include: tags
+  cloud:
+    config:
+      label: master
+      fail-fast: false # dev/test
+      discovery:
+        enabled: true
+        service-id: zcs-config-manage
+      name: applicaiton
+      profile: dev,gateway
 
 # server
 server:
@@ -16,13 +24,21 @@ server:
   servlet:
     context-path: /
 
+# Eureka
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    service-url:
+      defaultZone: http://172.18.90.40:9900/eureka/,http://172.18.90.41:9000/eureka/
+
 # management
 management:
   endpoints:
     web:
       base-path: /actuator
       exposure:
-        include: info,prometheus
+        include: info,health,refresh
 
 # logging
 logging:
