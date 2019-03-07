@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -105,9 +104,10 @@ public class GatewayController {
         try {
             RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
             descriptor.setSource(X.XReqSource.HTTP);
-            Single<X.XHttpResponse> response = legionConnector.sendMessage(groupId, descriptor, req, X.XHttpResponse.newBuilder());
-            X.XHttpResponse obj = response.blockingGet();
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(R.success(obj.getBody()));
+            descriptor.setRequest(req);
+            Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
+            String obj = response.blockingGet();
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON_UTF8).body(R.success(obj));
         }catch (Exception ex){
             if(ex instanceof LegionException){
                 LegionException exception = (LegionException)ex;
@@ -117,6 +117,18 @@ public class GatewayController {
             }
         }
     }
+
+    /**
+     * 设置返回headers
+     * @param response  XHttpResponse
+     * @return          HttpHeaders
+     */
+    /*private HttpHeaders headers(X.XHttpResponse response){
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAll(response.getHeadersMap());
+        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
+        return headers;
+    }*/
 
     /**
      * 代理请求处理
@@ -136,10 +148,10 @@ public class GatewayController {
             String headerName = headerNames.nextElement();
             agentRequest.putHeaders(headerName, request.getHeader(headerName));
         }
-        agentRequest.setBody(body);
+        //agentRequest.setBody(body);
 
-        CompletableFuture<X.XHttpResponse> completableFuture = new CompletableFuture<>();
-        SenderHandler<X.XHttpResponse> handler = SenderHandlerFactory.create(
+        CompletableFuture<String> completableFuture = new CompletableFuture<>();
+        SenderHandler<String> handler = SenderHandlerFactory.create(
                 completableFuture::complete, fail->{
             log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
             String errorMsg = String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage());
@@ -147,10 +159,10 @@ public class GatewayController {
         });
 
         RequestDescriptor descriptor = GatewayUtils.create(agentRequest.getHeadersOrDefault("content-type", MediaType.APPLICATION_JSON_VALUE), agentTag.getTag());
-        legionConnector.sendMessage(agentTag.getGroupId(), descriptor, agentRequest.build(), handler, X.XHttpResponse.newBuilder());
+        //legionConnector.sendMessage(agentTag.getGroupId(), descriptor, agentRequest.build(), handler, X.XHttpResponse.newBuilder());
         try {
-            X.XHttpResponse m = completableFuture.get(1, TimeUnit.MINUTES);
-            return ResponseEntity.status(m.getStatus()).contentType(MediaType.APPLICATION_JSON).body(R.success(m.getBody()));
+            String m = completableFuture.get(1, TimeUnit.MINUTES);
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON_UTF8).body(R.success(m));
         } catch (Exception e) {
             log.warn("gateway error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
