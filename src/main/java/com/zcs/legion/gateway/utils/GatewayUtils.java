@@ -53,7 +53,6 @@ public final class GatewayUtils {
      */
     public static X.XHttpRequest httpRequest(HttpServletRequest request, String body){
         X.XHttpRequest.Builder builder = X.XHttpRequest.newBuilder()
-                .setBody(body)
                 .setHost(host(request))
                 .setRequestURI(request.getRequestURI());
 
