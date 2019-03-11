@@ -55,7 +55,7 @@ public class GatewayController {
      * @return ResponseEntity
      */
     @RequestMapping(value = "/{groupId:[A-z]*}/**", method = RequestMethod.POST)
-    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody String body, HttpServletRequest request) {
+    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false)String body, HttpServletRequest request) {
         if(log.isDebugEnabled()){
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
@@ -84,7 +84,7 @@ public class GatewayController {
      */
     @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
-                            @RequestBody String body, HttpServletRequest request) {
+                            @RequestBody(required = false)String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
     }
