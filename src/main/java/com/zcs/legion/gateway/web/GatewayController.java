@@ -54,7 +54,7 @@ public class GatewayController {
      * 定义请求类型
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/{groupId:[A-z]*}/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", method = RequestMethod.POST)
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false)String body, HttpServletRequest request) {
         if(log.isDebugEnabled()){
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
