@@ -1,3 +1,4 @@
+/*
 package com.zcs.legion.gateway;
 
 import com.alibaba.fastjson.JSON;
@@ -95,3 +96,4 @@ public class GatewayApplicationTests {
         log.info("===>{}", "a"+"b");
     }
 }
+*/

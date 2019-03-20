@@ -15,6 +15,7 @@ import io.reactivex.Single;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -53,8 +54,8 @@ public class GatewayController {
      * 定义请求类型
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/{groupId:[A-z]*}/**", method = RequestMethod.POST)
-    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody String body, HttpServletRequest request) {
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", method = RequestMethod.POST)
+    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false)String body, HttpServletRequest request) {
         if(log.isDebugEnabled()){
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
@@ -83,7 +84,7 @@ public class GatewayController {
      */
     @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
-                            @RequestBody String body, HttpServletRequest request) {
+                            @RequestBody(required = false)String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
     }
@@ -107,7 +108,7 @@ public class GatewayController {
             descriptor.setRequest(req);
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON_UTF8).body(R.success(obj));
+            return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         }catch (Exception ex){
             if(ex instanceof LegionException){
                 LegionException exception = (LegionException)ex;
@@ -120,15 +121,15 @@ public class GatewayController {
 
     /**
      * 设置返回headers
-     * @param response  XHttpResponse
+     * @param descriptor RequestDescriptor
      * @return          HttpHeaders
      */
-    /*private HttpHeaders headers(X.XHttpResponse response){
+    private HttpHeaders headers(RequestDescriptor descriptor){
         HttpHeaders headers = new HttpHeaders();
-        headers.setAll(response.getHeadersMap());
+        headers.setAll(descriptor.getExt());
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
         return headers;
-    }*/
+    }
 
     /**
      * 代理请求处理
