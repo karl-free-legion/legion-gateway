@@ -1,11 +1,14 @@
 package com.zcs.legion.gateway.web;
 
+import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
 import com.legion.client.handlers.SenderHandler;
 import com.legion.client.handlers.SenderHandlerFactory;
 import com.legion.core.api.X;
 import com.legion.core.exception.LegionException;
+import com.legion.core.utils.XHelper;
+import com.zcs.legion.api.A;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import com.zcs.legion.gateway.utils.GatewayUtils;
@@ -22,12 +25,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
  * GatewayController
+ *
  * @author lance
  * @since 2019.2.23 15:06
  */
@@ -40,10 +43,10 @@ public class GatewayController {
     @Autowired
     private GroupTag groupTag;
 
-    private GroupTag.AgentTag getAgentTag(String requestURI){
-        for(int i=0;i<groupTag.getAgentTags().size();i++){
+    private GroupTag.AgentTag getAgentTag(String requestURI) {
+        for (int i = 0; i < groupTag.getAgentTags().size(); i++) {
             GroupTag.AgentTag at = groupTag.getAgentTags().get(i);
-            if(requestURI.startsWith(at.getPrefix())){
+            if (requestURI.startsWith(at.getPrefix())) {
                 return at;
             }
         }
@@ -52,23 +55,24 @@ public class GatewayController {
 
     /**
      * 定义请求类型
+     *
      * @return ResponseEntity
      */
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", method = RequestMethod.POST)
-    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false)String body, HttpServletRequest request) {
-        if(log.isDebugEnabled()){
+    public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
 
-        ResponseEntity<R>entity;
-        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId+"/");
+        ResponseEntity<R> entity;
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
         //代理定义, 流程定义, Module请求
-        if(groupTag.getAgentTags().stream().anyMatch(a->a.getGroupId().equalsIgnoreCase(groupId))){
+        if (groupTag.getAgentTags().stream().anyMatch(a -> a.getTag().equalsIgnoreCase(groupId))) {
             entity = broker(request, body);
-        }else if(groupTag.getProcess().contains(groupId)){
+        } else if (groupTag.getProcess().contains(groupId)) {
             entity = simple("P", groupId, tag, body, request);
-        }else {
+        } else {
             entity = simple("M", groupId, tag, body, request);
         }
 
@@ -77,30 +81,32 @@ public class GatewayController {
 
     /**
      * 消息转发处理(简单消息）
-     * @param groupId   GroupID
-     * @param tag       标签
-     * @param body      消息体
-     * @return          返回结果
+     *
+     * @param groupId GroupID
+     * @param tag     标签
+     * @param body    消息体
+     * @return 返回结果
      */
     @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
-                            @RequestBody(required = false)String body, HttpServletRequest request) {
+                                      @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
     }
 
     /**
      * 定义简单流程
+     *
      * @return ResponseEntity
      */
-    private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request){
-        if(log.isDebugEnabled()){
+    private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
             log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
         }
 
         String contentType = request.getHeader("content-type");
-        contentType = StringUtils.isBlank(contentType)? MediaType.APPLICATION_JSON_VALUE: contentType;
-        X.XHttpRequest req = GatewayUtils.httpRequest(request, body);
+        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
 
         try {
             RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
@@ -109,11 +115,11 @@ public class GatewayController {
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
-        }catch (Exception ex){
-            if(ex instanceof LegionException){
-                LegionException exception = (LegionException)ex;
+        } catch (Exception ex) {
+            if (ex instanceof LegionException) {
+                LegionException exception = (LegionException) ex;
                 return ResponseEntity.status(HttpStatus.OK).body(R.error(exception.getCode(), exception.getMessage()));
-            }else {
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
             }
         }
@@ -121,10 +127,11 @@ public class GatewayController {
 
     /**
      * 设置返回headers
+     *
      * @param descriptor RequestDescriptor
-     * @return          HttpHeaders
+     * @return HttpHeaders
      */
-    private HttpHeaders headers(RequestDescriptor descriptor){
+    private HttpHeaders headers(RequestDescriptor descriptor) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAll(descriptor.getExt());
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
@@ -133,37 +140,29 @@ public class GatewayController {
 
     /**
      * 代理请求处理
+     *
      * @return ResponseEntity
      */
-    private ResponseEntity<R> broker(HttpServletRequest request, String body){
+    private ResponseEntity<R> broker(HttpServletRequest request, String body) {
         GroupTag.AgentTag agentTag = getAgentTag(request.getRequestURI());
         log.info("dispatch agent ,request uri: {}, tag: {}", request.getRequestURI(), agentTag);
-        if(agentTag == null){
+        if (agentTag == null) {
             return ResponseEntity.badRequest().body(R.error(-100, "Error."));
         }
 
-        X.XHttpRequest.Builder agentRequest = X.XHttpRequest.newBuilder();
-        agentRequest.setRequestURI(request.getRequestURI());
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while(headerNames.hasMoreElements()){
-            String headerName = headerNames.nextElement();
-            agentRequest.putHeaders(headerName, request.getHeader(headerName));
-        }
-        //agentRequest.setBody(body);
-
-        CompletableFuture<String> completableFuture = new CompletableFuture<>();
-        SenderHandler<String> handler = SenderHandlerFactory.create(
-                completableFuture::complete, fail->{
-            log.info("response failed. {}, {}", fail.getCode(), fail.getMessage());
-            String errorMsg = String.format("response failed, code=%d, msg=%s", fail.getCode(), fail.getMessage());
-            completableFuture.completeExceptionally(LegionException.valueOf(errorMsg));
-        });
-
-        RequestDescriptor descriptor = GatewayUtils.create(agentRequest.getHeadersOrDefault("content-type", MediaType.APPLICATION_JSON_VALUE), agentTag.getTag());
-        //legionConnector.sendMessage(agentTag.getGroupId(), descriptor, agentRequest.build(), handler, X.XHttpResponse.newBuilder());
         try {
-            String m = completableFuture.get(1, TimeUnit.MINUTES);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON_UTF8).body(R.success(m));
+            X.XHttpRequest agentRequest = GatewayUtils.httpRequest(request);
+            A.BrokerMessage message = A.BrokerMessage.newBuilder().setBody(body).build();
+            RequestDescriptor descriptor = GatewayUtils.create(MediaType.APPLICATION_JSON_VALUE, agentTag.getTag());
+            descriptor.setSource(X.XReqSource.HTTP);
+            descriptor.setRequest(agentRequest);
+
+            Single<String> response = legionConnector.sendHttpMessage("agent", descriptor, JsonFormat.printer().print(message));
+            String obj = response.blockingGet();
+
+            A.BrokerMessage.Builder result = A.BrokerMessage.newBuilder();
+            JsonFormat.parser().merge(obj, result);
+            return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(result.getCode(), result.getBody()));
         } catch (Exception e) {
             log.warn("gateway error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));

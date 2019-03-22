@@ -40,6 +40,13 @@ public class R extends HashMap<String, Object> {
 		r.put(MESSAGE, message);
 		return r;
 	}
+
+	public static R success(int code, Object message) {
+		R r = new R();
+		r.put(CODE, code);
+		r.put(MESSAGE, message);
+		return r;
+	}
 	
 	public static R success(Map<String, Object> map) {
 		R r = new R();
