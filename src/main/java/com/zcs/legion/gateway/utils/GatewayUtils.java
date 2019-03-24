@@ -48,10 +48,9 @@ public final class GatewayUtils {
     /**
      * 创建XHttpRequest
      * @param request HttpServletRequest
-     * @param body    请求body
      * @return        XHttpRequest
      */
-    public static X.XHttpRequest httpRequest(HttpServletRequest request, String body){
+    public static X.XHttpRequest httpRequest(HttpServletRequest request){
         X.XHttpRequest.Builder builder = X.XHttpRequest.newBuilder()
                 .setHost(host(request))
                 .setRequestURI(request.getRequestURI());
