@@ -5,7 +5,7 @@ import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
 import com.legion.core.exception.LegionException;
-//import com.legion.net.exception.ExceptionConstants;
+import com.legion.net.exception.ExceptionConstants;
 import com.zcs.legion.api.A;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
@@ -117,8 +117,8 @@ public class GatewayController {
                 LegionException exception = (LegionException) ex;
                 return ResponseEntity.status(HttpStatus.OK).body(R.error(exception.getCode(), exception.getMessage()));
             } else {
-                //return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
+                return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
             }
         }
     }
@@ -163,8 +163,8 @@ public class GatewayController {
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(result.getCode(), result.getBody()));
         } catch (Exception e) {
             log.warn("===>{}", e.getMessage(), e);
-            //return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
+            return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
         }
     }
 }

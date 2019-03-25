@@ -11,6 +11,3 @@ tags:
     - tag: tsm
       groupId: agent
       prefix: /tsm
-    - tag: apps
-      groupId: agent
-      prefix: /apps
