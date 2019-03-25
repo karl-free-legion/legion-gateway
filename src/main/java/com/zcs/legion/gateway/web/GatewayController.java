@@ -3,11 +3,9 @@ package com.zcs.legion.gateway.web;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
-import com.legion.client.handlers.SenderHandler;
-import com.legion.client.handlers.SenderHandlerFactory;
 import com.legion.core.api.X;
 import com.legion.core.exception.LegionException;
-import com.legion.core.utils.XHelper;
+import com.legion.net.exception.ExceptionConstants;
 import com.zcs.legion.api.A;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
@@ -25,8 +23,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 /**
  * GatewayController
@@ -116,11 +112,13 @@ public class GatewayController {
             String obj = response.blockingGet();
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         } catch (Exception ex) {
+            log.warn("===>{}", ex.getMessage(), ex);
             if (ex instanceof LegionException) {
                 LegionException exception = (LegionException) ex;
                 return ResponseEntity.status(HttpStatus.OK).body(R.error(exception.getCode(), exception.getMessage()));
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
+                return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
+                //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
             }
         }
     }
@@ -164,8 +162,9 @@ public class GatewayController {
             JsonFormat.parser().merge(obj, result);
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(result.getCode(), result.getBody()));
         } catch (Exception e) {
-            log.warn("gateway error", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
+            log.warn("===>{}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
+            //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(-100, e.getMessage()));
         }
     }
 }
