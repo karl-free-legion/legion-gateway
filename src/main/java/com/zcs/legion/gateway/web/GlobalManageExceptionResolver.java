@@ -17,7 +17,7 @@ public class GlobalManageExceptionResolver {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public String ExceptionHandler(Exception em){
-		log.error("Handler Exception:", em);
+		log.warn("Handler Exception:", em);
         return "error";
     }
 }
