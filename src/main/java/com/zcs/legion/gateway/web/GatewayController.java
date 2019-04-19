@@ -82,7 +82,7 @@ public class GatewayController {
      * 定义微信扫码请求
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/{groupId:[a-z]}/{qrCode}")
+ /*   @RequestMapping(value = "/{groupId:[a-z]}/{qrCode}")
     public ResponseEntity<R> wxSweepDispatch(@PathVariable String groupId, @PathVariable String qrCode, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -91,7 +91,7 @@ public class GatewayController {
         paramMap.put("qrCode",qrCode);
         paramMap.put("type", groupId);
         return simple("M", "exhibition", "code", JSON.toJSONString(paramMap), request);
-    }
+    }*/
 
     /**
      * 消息转发处理(简单消息）
