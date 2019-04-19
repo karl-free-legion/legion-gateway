@@ -1,5 +1,6 @@
 package com.zcs.legion.gateway.web;
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -23,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * GatewayController
@@ -73,6 +76,21 @@ public class GatewayController {
         }
 
         return entity;
+    }
+
+    /**
+     * 定义微信扫码请求
+     * @return ResponseEntity
+     */
+    @RequestMapping(value = "/{groupId:[a-z]}/{qrCode}")
+    public ResponseEntity<R> wxSweepDispatch(@PathVariable String groupId, @PathVariable String qrCode, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        Map<String,String> paramMap = new HashMap<>(2);
+        paramMap.put("qrCode",qrCode);
+        paramMap.put("type", groupId);
+        return simple("M", "exhibition", "code", JSON.toJSONString(paramMap), request);
     }
 
     /**
