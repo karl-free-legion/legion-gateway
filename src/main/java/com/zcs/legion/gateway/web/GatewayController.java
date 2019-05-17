@@ -200,6 +200,7 @@ public class GatewayController {
     private String sendToModel( HttpServletRequest request,String tag,String groupId,String body){
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)?body:"";
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
         RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
         descriptor.setSource(X.XReqSource.HTTP);
