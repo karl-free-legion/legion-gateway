@@ -34,7 +34,6 @@ import java.util.Map;
  * @since 2019.2.23 15:06
  */
 @Slf4j
-@RestController
 public class GatewayController {
     private final Counter REQUEST_TOTAL = Metrics.counter("http.request.total", "Legion-Gateway", "http.request.total");
     @Autowired
@@ -58,6 +57,7 @@ public class GatewayController {
      * @return ResponseEntity
      */
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
+    @ResponseBody
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -102,12 +102,30 @@ public class GatewayController {
      * @return 返回结果
      */
     @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
+    @ResponseBody
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
                                       @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
     }
 
+    /**
+     * 浏览器重定向
+     * @param groupId
+     * @param body
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request){
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        ResponseEntity<R> entity;
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        entity = simple("M", groupId, tag, body, request);
+        return "redirect:"+entity.getBody().get("url");
+    }
     /**
      * 定义简单流程
      *
