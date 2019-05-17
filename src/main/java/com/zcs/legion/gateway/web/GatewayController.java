@@ -42,6 +42,10 @@ public class GatewayController {
     private LegionConnector legionConnector;
     @Autowired
     private GroupTag groupTag;
+    /**
+     * 重定向的url
+     */
+    private final String REDIRECT_URL = "url";
 
     private GroupTag.AgentTag getAgentTag(String requestURI) {
         for (int i = 0; i < groupTag.getAgentTags().size(); i++) {
@@ -123,11 +127,12 @@ public class GatewayController {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
-        ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        entity = simple("M", groupId, tag, body, request);
-        System.out.println(entity.getBody().get("url"));
-        return "forward:"+entity.getBody().get("url");
+        Map<String,String> resultMap= redirectSimple("M", groupId, tag, body, request);
+        if(resultMap.get(REDIRECT_URL)!=null){
+            return "redirect:"+resultMap.get(REDIRECT_URL);
+        }
+        return "error";
     }
     /**
      * 定义简单流程
@@ -162,6 +167,46 @@ public class GatewayController {
         }
     }
 
+    /**
+     * 请求结束后进行重定向
+     * @param type
+     * @param groupId
+     * @param tag
+     * @param body
+     * @param request
+     * @return
+     */
+    private Map<String,String> redirectSimple(String type, String groupId, String tag, String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
+        }
+        try {
+            String s = sendToModel(request,tag,groupId,body);
+            return JSON.parseObject(s,Map.class);
+        } catch (Exception ex) {
+            log.warn("===>{}", ex.getMessage(), ex);
+            return new HashMap<>();
+        }
+    }
+
+    /**
+     * 将请求发到model
+     * @param request
+     * @param tag
+     * @param groupId
+     * @param body
+     * @return
+     */
+    private String sendToModel( HttpServletRequest request,String tag,String groupId,String body){
+        String contentType = request.getHeader("content-type");
+        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
+        RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
+        descriptor.setSource(X.XReqSource.HTTP);
+        descriptor.setRequest(req);
+        Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
+        return response.blockingGet();
+    }
     /**
      * 设置返回headers
      *
