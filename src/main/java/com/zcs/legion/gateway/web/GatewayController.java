@@ -119,14 +119,15 @@ public class GatewayController {
      * @return
      */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
-    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request){
+    public String redirect(@PathVariable String groupId,@RequestBody(required = false) String body, HttpServletRequest request){
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         entity = simple("M", groupId, tag, body, request);
-        return "redirect:"+entity.getBody().get("url");
+        System.out.println(entity.getBody().get("url"));
+        return "forward:"+entity.getBody().get("url");
     }
     /**
      * 定义简单流程
