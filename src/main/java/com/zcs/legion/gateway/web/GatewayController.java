@@ -1,5 +1,6 @@
 package com.zcs.legion.gateway.web;
 
+import com.alibaba.fastjson.JSON;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -20,9 +21,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * GatewayController
@@ -31,13 +35,17 @@ import javax.servlet.http.HttpServletRequest;
  * @since 2019.2.23 15:06
  */
 @Slf4j
-@RestController
+@Controller
 public class GatewayController {
     private final Counter REQUEST_TOTAL = Metrics.counter("http.request.total", "Legion-Gateway", "http.request.total");
     @Autowired
     private LegionConnector legionConnector;
     @Autowired
     private GroupTag groupTag;
+    /**
+     * 重定向的url
+     */
+    private final String REDIRECT_URL = "url";
 
     private GroupTag.AgentTag getAgentTag(String requestURI) {
         for (int i = 0; i < groupTag.getAgentTags().size(); i++) {
@@ -55,6 +63,7 @@ public class GatewayController {
      * @return ResponseEntity
      */
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
+    @ResponseBody
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -75,6 +84,21 @@ public class GatewayController {
         return entity;
     }
 
+/*    *//**
+     * 定义微信扫码请求
+     * @return ResponseEntity
+     *//*
+    @RequestMapping(value = "/{groupId:[a-z]}/{qrCode}")
+    public ResponseEntity<R> wxSweepDispatch(@PathVariable String groupId, @PathVariable String qrCode, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        Map<String,String> paramMap = new HashMap<>(2);
+        paramMap.put("qrCode",qrCode);
+        paramMap.put("type", groupId);
+        return simple("M", "exhibition", "code", JSON.toJSONString(paramMap), request);
+    }*/
+
     /**
      * 消息转发处理(简单消息）
      *
@@ -84,12 +108,32 @@ public class GatewayController {
      * @return 返回结果
      */
     @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
+    @ResponseBody
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
                                       @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
     }
 
+    /**
+     * 浏览器重定向
+     * @param groupId
+     * @param body
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    public String redirect(@PathVariable String groupId,@RequestBody(required = false) String body, HttpServletRequest request){
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        Map<String,String> resultMap= redirectSimple("M", groupId, tag, body, request);
+        if(resultMap.get(REDIRECT_URL)!=null){
+            return "redirect:"+resultMap.get(REDIRECT_URL);
+        }
+        return "error";
+    }
     /**
      * 定义简单流程
      *
@@ -123,6 +167,47 @@ public class GatewayController {
         }
     }
 
+    /**
+     * 请求结束后进行重定向
+     * @param type
+     * @param groupId
+     * @param tag
+     * @param body
+     * @param request
+     * @return
+     */
+    private Map<String,String> redirectSimple(String type, String groupId, String tag, String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
+        }
+        try {
+            String s = sendToModel(request,tag,groupId,body);
+            return JSON.parseObject(s,Map.class);
+        } catch (Exception ex) {
+            log.warn("===>{}", ex.getMessage(), ex);
+            return new HashMap<>();
+        }
+    }
+
+    /**
+     * 将请求发到model
+     * @param request
+     * @param tag
+     * @param groupId
+     * @param body
+     * @return
+     */
+    private String sendToModel( HttpServletRequest request,String tag,String groupId,String body){
+        String contentType = request.getHeader("content-type");
+        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)?body:"";
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
+        RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
+        descriptor.setSource(X.XReqSource.HTTP);
+        descriptor.setRequest(req);
+        Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
+        return response.blockingGet();
+    }
     /**
      * 设置返回headers
      *

@@ -3,15 +3,15 @@ spring:
     name: zcs-legion-gateway
   profiles:
     include: tags
-  cloud:
-    config:
-      label: master
-      fail-fast: false # dev/test
-      discovery:
-        enabled: true
-        service-id: zcs-config-manage
-      name: applicaiton
-      profile: dev,gateway
+#  cloud:
+#    config:
+#      label: master
+#      fail-fast: false # dev/test
+#      discovery:
+#        enabled: true
+#        service-id: zcs-config-manage
+#      name: applicaiton
+#      profile: dev,gateway
 
 # server
 server:
@@ -30,7 +30,7 @@ eureka:
     prefer-ip-address: true
   client:
     service-url:
-      defaultZone: http://172.18.90.40:9900/eureka/,http://172.18.90.41:9000/eureka/
+      defaultZone: http://eureka.didispace.com/eureka/
 
 # management
 management:
