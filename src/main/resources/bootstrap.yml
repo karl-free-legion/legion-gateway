@@ -46,6 +46,8 @@ management:
     jmx:
       exposure:
         exclude: '*'
+  server:
+    port: 1${server.port}
 
 # logging
 logging:
