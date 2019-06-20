@@ -53,9 +53,9 @@ management:
 logging:
   path: logs
   level:
-    org.springframework: info
-    com.zcs.legion.gateway: debug
-    com.legion: debug
+    org.springframework: warn
+    com.zcs.legion.gateway: info
+    com.legion: info
 
 #legion config
 legion:
