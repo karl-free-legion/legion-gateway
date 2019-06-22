@@ -41,7 +41,7 @@
         <dependency>
             <groupId>com.zcs.boot</groupId>
             <artifactId>spring-boot-starter-legion-client</artifactId>
-            <version>1.2.8.8</version>
+            <version>1.2.8.10</version>
         </dependency>
 
         <!-- Commons -->
