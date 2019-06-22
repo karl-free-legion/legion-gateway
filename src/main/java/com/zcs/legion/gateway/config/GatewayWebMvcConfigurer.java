@@ -1,23 +1,13 @@
 package com.zcs.legion.gateway.config;
 
-import com.zcs.legion.gateway.filter.AbstractIpFilter;
-import com.zcs.legion.gateway.filter.AbstractTokenFilter;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.Comparator;
-import java.util.List;
-
 /**
  * GatewayConfigurer
  *
  * @author lance
  * 6/21/2019 17:23
  */
-//@Configuration
+/*
+@Configuration
 public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     public final List<AbstractTokenFilter> filters;
     public final List<AbstractIpFilter> ipFilters;
@@ -53,3 +43,4 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
         }
     }
 }
+*/
