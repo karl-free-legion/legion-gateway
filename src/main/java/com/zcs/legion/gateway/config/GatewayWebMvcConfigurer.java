@@ -1,9 +1,7 @@
 package com.zcs.legion.gateway.config;
 
-import com.google.common.collect.Lists;
 import com.zcs.legion.gateway.filter.AbstractIpFilter;
 import com.zcs.legion.gateway.filter.AbstractTokenFilter;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -15,15 +13,16 @@ import java.util.List;
 
 /**
  * GatewayConfigurer
+ *
  * @author lance
  * 6/21/2019 17:23
  */
-@Configuration
+//@Configuration
 public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     public final List<AbstractTokenFilter> filters;
     public final List<AbstractIpFilter> ipFilters;
 
-    public GatewayWebMvcConfigurer(List<AbstractTokenFilter> filters, List<AbstractIpFilter> ipFilters){
+    public GatewayWebMvcConfigurer(List<AbstractTokenFilter> filters, List<AbstractIpFilter> ipFilters) {
         this.filters = filters;
         this.ipFilters = ipFilters;
     }
