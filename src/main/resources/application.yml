@@ -3,15 +3,6 @@ spring:
     name: zcs-legion-gateway
   profiles:
     include: tags
-#  cloud:
-#    config:
-#      label: master
-#      fail-fast: false # dev/test
-#      discovery:
-#        enabled: true
-#        service-id: zcs-config-manage
-#      name: applicaiton
-#      profile: dev,gateway
 
 # server
 server:
@@ -23,14 +14,6 @@ server:
   connection-timeout: 5000
   servlet:
     context-path: /
-
-# Eureka
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    service-url:
-      defaultZone: http://eureka.didispace.com/eureka/
 
 # management
 management:
@@ -53,7 +36,7 @@ management:
 logging:
   path: logs
   level:
-    org.springframework: warn
+    org.springframework: info
     com.zcs.legion.gateway: info
     com.legion: info
 

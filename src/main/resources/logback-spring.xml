@@ -2,7 +2,7 @@
 <configuration debug="true" scan="true" scanPeriod="30 seconds">
     <include resource="org/springframework/boot/logging/logback/defaults.xml" />
     <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
-    <springProperty scope="context" name="logging.path" source="logging.path"/>
+    <springProperty scope="context" name="logging.path" source="logging.path" defaultValue="logs"/>
 
     <!-- 文件切割, 日志保存30天, 最大100M, 日志总大小20G -->
     <appender name="FILE-Appender" class="ch.qos.logback.core.rolling.RollingFileAppender">
