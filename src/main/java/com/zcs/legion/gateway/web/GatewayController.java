@@ -141,12 +141,13 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
+            log.info("===>RequestURI: {}/{}/{}, body: {}, header: {}", type, groupId, tag, body, request.getHeaderNames());
         }
 
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
+
 
         try {
             RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);

@@ -2,6 +2,7 @@ package com.zcs.legion.gateway.utils;
 
 import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 
@@ -13,6 +14,7 @@ import java.util.Enumeration;
  * @author lance
  * @since 2019.3.1 16:16
  */
+@Slf4j
 public final class GatewayUtils {
 
     /**
@@ -56,10 +58,12 @@ public final class GatewayUtils {
                 .setRequestURI(request.getRequestURI());
 
         Enumeration<String> headerNames = request.getHeaderNames();
+        log.info("headerNames values : {}" , headerNames);
         while(headerNames.hasMoreElements()){
             String headerName = headerNames.nextElement();
             builder.putHeaders(headerName, request.getHeader(headerName));
         }
+        log.info("builder values : {}" , builder.getHeadersMap());
         return builder.build();
     }
 
