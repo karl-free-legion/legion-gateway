@@ -25,6 +25,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -141,12 +142,22 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}, body: {}, request: {}", type, groupId, tag, body, JSON.toJSONString(request));
+            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
         }
+
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+
+        while(headerNames.hasMoreElements()){
+            String headerName = headerNames.nextElement();
+            log.info("headerNames values : {}" , headerName);
+        }
+
 
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
+
 
 
         try {
