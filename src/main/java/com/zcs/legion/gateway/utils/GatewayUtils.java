@@ -58,9 +58,10 @@ public final class GatewayUtils {
                 .setRequestURI(request.getRequestURI());
 
         Enumeration<String> headerNames = request.getHeaderNames();
-        log.info("headerNames values : {}" , headerNames);
+
         while(headerNames.hasMoreElements()){
             String headerName = headerNames.nextElement();
+            log.info("headerNames values : {}" , headerName);
             builder.putHeaders(headerName, request.getHeader(headerName));
         }
         log.info("builder values : {}" , builder.getHeadersMap());

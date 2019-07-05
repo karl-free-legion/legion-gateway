@@ -141,7 +141,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}, body: {}, header: {}", type, groupId, tag, body, request.getHeaderNames());
+            log.info("===>RequestURI: {}/{}/{}, body: {}, request: {}", type, groupId, tag, body, JSON.toJSONString(request));
         }
 
         String contentType = request.getHeader("content-type");
