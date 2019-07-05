@@ -1,18 +1,15 @@
 package com.zcs.legion.gateway;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.cloud.client.SpringCloudApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Legion-Gateway
+ *
  * @author lance
  * @since 2019.2.23 16:41
  */
-@SpringCloudApplication
+@SpringBootApplication
 public class GatewayApplication {
 
     public static void main(String[] args) {
