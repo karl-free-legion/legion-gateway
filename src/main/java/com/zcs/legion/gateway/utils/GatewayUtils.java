@@ -2,7 +2,7 @@ package com.zcs.legion.gateway.utils;
 
 import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
-import com.zcs.legion.common.ConstantsValues;
+import com.zcs.legion.gateway.common.ConstantsValues;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 

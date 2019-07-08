@@ -1,4 +1,4 @@
-package com.zcs.legion.common;
+package com.zcs.legion.gateway.common;
 
 /**
  * @author ：lyj

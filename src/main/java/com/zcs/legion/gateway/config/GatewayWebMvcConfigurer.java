@@ -1,6 +1,6 @@
 package com.zcs.legion.gateway.config;
 
-import com.zcs.legion.common.ConstantsValues;
+import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.filter.AbstractTokenFilter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;

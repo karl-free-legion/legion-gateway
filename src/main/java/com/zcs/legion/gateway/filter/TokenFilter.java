@@ -1,8 +1,8 @@
 package com.zcs.legion.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
-import com.zcs.legion.common.ConstantsValues;
-import com.zcs.legion.componet.EncrptGlobalToken;
+import com.zcs.legion.gateway.common.ConstantsValues;
+import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.filter.exception.InvalidTokenException;
 import com.zcsmart.ccks.SE;
