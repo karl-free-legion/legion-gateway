@@ -3,7 +3,6 @@ package com.zcs.legion.gateway.result;
 import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 定义返回
@@ -48,9 +47,10 @@ public class R extends HashMap<String, Object> {
 		return r;
 	}
 	
-	public static R success(Map<String, Object> map) {
+	public static R error(String key, Object value) {
 		R r = new R();
-		r.putAll(map);
+		r.put(CODE, key);
+		r.put(MESSAGE, value);
 		return r;
 	}
 	

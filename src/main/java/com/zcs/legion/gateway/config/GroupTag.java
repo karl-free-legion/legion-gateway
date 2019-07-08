@@ -2,10 +2,11 @@ package com.zcs.legion.gateway.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 
@@ -13,13 +14,15 @@ import java.util.List;
  * @since 2019.2.24 17:18
  */
 @Data
-@Component
-@EnableConfigurationProperties
+@RefreshScope
+@Component("groupTag")
 @ConfigurationProperties(prefix = "tags")
 public class GroupTag {
     List<String> modules;
     List<String> process;
     List<AgentTag> agentTags;
+    Map<String , List<String>> tokenTags;
+    Map<String , String> groupIdAndPlatCodes;
 
     @Data
     public static class AgentTag{
@@ -27,4 +30,5 @@ public class GroupTag {
         private String groupId;
         private String prefix;
     }
+
 }

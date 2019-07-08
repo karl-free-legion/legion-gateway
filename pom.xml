@@ -31,7 +31,10 @@
             <artifactId>spring-boot-starter-legion-client</artifactId>
             <version>1.2.8.14</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
         <!-- Commons -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -80,6 +83,22 @@
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.54</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ctrip.framework.apollo</groupId>
+            <artifactId>apollo-client</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-context</artifactId>
+            <version>2.0.4.RELEASE</version>
+        </dependency>
+        <!-- ckeys容器-->
+        <dependency>
+            <groupId>com.zcsmart.ccks</groupId>
+            <artifactId>zcs-ccks</artifactId>
+            <version>1.3.10</version>
         </dependency>
     </dependencies>
 
