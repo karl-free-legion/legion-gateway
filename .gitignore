@@ -27,3 +27,4 @@ mvnw.cmd
 /build/
 /logs/
 .mvn/
+cacheConfig/
