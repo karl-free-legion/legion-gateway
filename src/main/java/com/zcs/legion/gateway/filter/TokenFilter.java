@@ -1,6 +1,7 @@
 package com.zcs.legion.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
@@ -92,9 +93,12 @@ public class TokenFilter extends AbstractTokenFilter {
 
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
 
+        log.info("enc token data : {}, groupId : {}, 平台编码：{}"
+                , JSONObject.toJSONString(tokenObj), groupId, groupTag.getGroupIdAndPlatCodes().get(groupId));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
         request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
                 .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
+        log.info("用户名：{}， 机构号：{}", request.getAttribute(ConstantsValues.X_ACCOUNT), request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID));
     }
 
     /**
