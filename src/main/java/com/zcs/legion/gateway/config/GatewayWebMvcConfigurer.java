@@ -37,7 +37,7 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        if(!CollectionUtils.isEmpty(groupTag.getTokenTags().keySet())){
+        if(null!= groupTag.getTokenTags() && !CollectionUtils.isEmpty(groupTag.getTokenTags().keySet())){
             registry.addInterceptor(new GatewayFilterBean()).excludePathPatterns(ConstantsValues.X_NOT_FILTER_PATH)
                     .addPathPatterns(Arrays.stream(groupTag.getTokenTags().keySet().toArray()).map(g -> "/" + g +"/**").collect(Collectors.toList()));
         }
