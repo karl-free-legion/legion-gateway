@@ -64,6 +64,8 @@ public class TokenFilter extends AbstractTokenFilter {
 
     @Override
     public void handler(HttpServletRequest request) throws InvalidTokenException {
+        log.debug("come into tokenFilter : {}" , request.getRequestURI());
+
         //验证tag是否存在
         Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         String groupId = (String)pathVariables.get(ConstantsValues.X_GROUP_ID);
