@@ -48,7 +48,7 @@ management:
 logging:
   path: logs
   level:
-    org.springframework: info
+    org.springframework: warn
     com.zcs.legion.gateway: info
     com.legion: info
 
