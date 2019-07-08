@@ -18,7 +18,7 @@ public class RedisTemplateTests {
     @Test
     public void get(){
         String key = "hello";
-
+        redisTemplate.opsForValue().set(key, "world");
         log.info("===>{}", redisTemplate.opsForValue().get(key));
     }
 }

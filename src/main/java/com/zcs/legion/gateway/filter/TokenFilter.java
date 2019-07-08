@@ -71,7 +71,7 @@ public class TokenFilter extends AbstractTokenFilter {
         }
 
         String encToken = request.getHeader(ConstantsValues.X_AUTH_TOKEN);
-        log.info("the tags list:{}" , redisTemplate.opsForValue().get(ConstantsValues.X_PRE_TOKEN + encToken));
+        //log.info("the tags list:{}" , redisTemplate.opsForValue().get(ConstantsValues.X_PRE_TOKEN + encToken));
 
         //验证token不可为空
         if(StringUtils.isBlank(encToken)){
@@ -86,7 +86,7 @@ public class TokenFilter extends AbstractTokenFilter {
         }
         //解密token
         String token = getDecToken(encToken);
-        log.debug("token dec string value:{}" , token);
+        //log.debug("token dec string value:{}" , token);
 
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
 
