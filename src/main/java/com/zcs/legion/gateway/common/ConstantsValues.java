@@ -1,4 +1,4 @@
-package com.zcs.legion.common;
+package com.zcs.legion.gateway.common;
 
 /**
  * @author ：lyj
@@ -18,5 +18,7 @@ public class ConstantsValues {
     public static final  String X_GROUP_ID = "groupId";
 
     public static final  String X_NOT_FILTER_PATH = "/mperm/login";
+
+    public static final  String X_CHECKE_TAGS = "mperm";
 
 }

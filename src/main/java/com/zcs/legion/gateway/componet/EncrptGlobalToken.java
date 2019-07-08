@@ -1,4 +1,4 @@
-package com.zcs.legion.componet;
+package com.zcs.legion.gateway.componet;
 
 import lombok.Data;
 

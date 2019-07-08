@@ -1,8 +1,8 @@
 package com.zcs.legion.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
-import com.zcs.legion.common.ConstantsValues;
-import com.zcs.legion.componet.EncrptGlobalToken;
+import com.zcs.legion.gateway.common.ConstantsValues;
+import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.filter.exception.InvalidTokenException;
 import com.zcsmart.ccks.SE;
@@ -49,6 +49,9 @@ public class TokenFilter extends AbstractTokenFilter {
     @Autowired
     RedisTemplate redisTemplate;
 
+    private static SE se = null;
+
+
     @Override
     public boolean enable() {
         return true;
@@ -66,12 +69,11 @@ public class TokenFilter extends AbstractTokenFilter {
         String groupId = (String)pathVariables.get(ConstantsValues.X_GROUP_ID);
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
-        if(groupId.equals("mperm") && !checkTag(groupId , tag)){
+        if(groupId.equals(ConstantsValues.X_CHECKE_TAGS) && !checkTag(groupId , tag)){
             throw TAG_CHECKE_ILLEGAL;
         }
 
         String encToken = request.getHeader(ConstantsValues.X_AUTH_TOKEN);
-        log.info("the tags list:{}" , redisTemplate.opsForValue().get(ConstantsValues.X_PRE_TOKEN + encToken));
 
         //验证token不可为空
         if(StringUtils.isBlank(encToken)){
@@ -86,7 +88,6 @@ public class TokenFilter extends AbstractTokenFilter {
         }
         //解密token
         String token = getDecToken(encToken);
-        log.debug("token dec string value:{}" , token);
 
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
 
@@ -104,7 +105,7 @@ public class TokenFilter extends AbstractTokenFilter {
      */
     private String getDecToken(String encToken){
         try {
-            SE se = SEFactory.init(sePath, null, logFilePath);
+            se = SEFactory.init(sePath, null, logFilePath);
             byte[] bytes = se.decData(0, Base64.decodeBase64(encToken),  CkeysTypeEnum.CKEYS80,
                     EncTypeEnum.AES_192_CBC);
             return new String(bytes);
