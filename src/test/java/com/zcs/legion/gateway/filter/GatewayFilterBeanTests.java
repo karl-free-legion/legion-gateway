@@ -14,8 +14,7 @@ public class GatewayFilterBeanTests {
 
    @Before
    public void init(){
-       lists.add(new TokenTokenFilter());
-       lists.add(new GroupTokenFilter());
+       lists.add(new TokenFilter());
    }
 
     @Test

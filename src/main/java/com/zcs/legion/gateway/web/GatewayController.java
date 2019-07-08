@@ -42,6 +42,7 @@ public class GatewayController {
     private LegionConnector legionConnector;
     @Autowired
     private GroupTag groupTag;
+
     /**
      * 重定向的url
      */
@@ -113,6 +114,15 @@ public class GatewayController {
                                       @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
         return simple(type, groupId, tag, body, request);
+    }
+
+    /**
+     * 可通过该接口查看配置是否更新
+     */
+    @ResponseBody
+    @RequestMapping(value = "/checkProp")
+    public void checkProperties(){
+        log.info(JSON.toJSONString(groupTag));
     }
 
     /**
