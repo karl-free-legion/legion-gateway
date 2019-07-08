@@ -19,4 +19,6 @@ public class ConstantsValues {
 
     public static final  String X_NOT_FILTER_PATH = "/mperm/login";
 
+    public static final  String X_CHECKE_TAGS = "mperm";
+
 }
