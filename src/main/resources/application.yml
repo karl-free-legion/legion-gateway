@@ -7,7 +7,7 @@ spring:
       nodes: 172.16.211.228:26379,172.16.211.227:26379
     timeout: 3000
     database: 0
-    jedis:
+    lettuce:
       pool:
         max-active: 100
         max-idle: 20
