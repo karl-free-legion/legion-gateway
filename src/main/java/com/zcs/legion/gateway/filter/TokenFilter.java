@@ -64,7 +64,7 @@ public class TokenFilter extends AbstractTokenFilter {
 
     @Override
     public void handler(HttpServletRequest request) throws InvalidTokenException {
-        log.debug("come into tokenFilter ： {}" , request.getRequestURI());
+        log.info("come into tokenFilter ： {}" , request.getRequestURI());
 
         //验证tag是否存在
         Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
@@ -93,12 +93,10 @@ public class TokenFilter extends AbstractTokenFilter {
 
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
 
-        log.info("enc token data : {}, groupId : {}, 平台编码：{}"
-                , JSONObject.toJSONString(tokenObj), groupId, groupTag.getGroupIdAndPlatCodes().get(groupId));
+        log.info("enc token data : {}" , JSONObject.toJSONString(tokenObj));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
         request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
                 .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
-        log.info("用户名：{}， 机构号：{}", request.getAttribute(ConstantsValues.X_ACCOUNT), request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID));
     }
 
     /**
