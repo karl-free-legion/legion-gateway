@@ -15,7 +15,6 @@ import com.zcsmart.ccks.exceptions.SecurityLibExecption;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -37,12 +36,6 @@ import static com.zcs.legion.gateway.filter.exception.InvalidTokenException.*;
 @Slf4j
 @Component
 public class TokenFilter extends AbstractTokenFilter {
-
-    @Value("${gateway.server.pack}")
-    private String sePath;
-
-    @Value("${legion_pack_logs}")
-    private String logFilePath;
 
     @Autowired
     private GroupTag groupTag;
@@ -108,7 +101,7 @@ public class TokenFilter extends AbstractTokenFilter {
      */
     private String getDecToken(String encToken){
         try {
-            se = SEFactory.init(sePath, null, logFilePath);
+            se = SEFactory.init(groupTag.getGatewayPack(), null, groupTag.getLegionPackLog());
             byte[] bytes = se.decData(0, Base64.decodeBase64(encToken),  CkeysTypeEnum.CKEYS80,
                     EncTypeEnum.AES_192_CBC);
             return new String(bytes);
