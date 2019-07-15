@@ -61,13 +61,6 @@ legion:
       nodeId: legion-gateway
       groupId: legion-gateway
 
-
-## lgm-gateway-server.pack的配置地址
-#gateway.server.pack gatewayPack: D:\home\zcs\lgm-global-permission\lgm-gateway-server-test.pack
-#
-## ccks的日志存放地址
-#legion_pack_logs legionPackLog: D:\home\zcs\lgm-global-permission\cckslog\cpklog.log
-
 #阿波罗服务配置,apollo.meta地址随环境变化. 其他都不变
 app:
   id: legion-gateway-id
