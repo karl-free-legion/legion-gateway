@@ -30,7 +30,8 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new GatewayFilterBean()).excludePathPatterns(ConstantsValues.X_NOT_FILTER_PATH)
-                .addPathPatterns("/mperm/**" , "/platform/**");
+                .addPathPatterns("/mperm/**" , "/platform/**","/smart/house/**","/smart/homes/**"
+                ,"/smart/room/**", "/smart/term/**", "/smart/auth/**");
     }
 
     class GatewayFilterBean extends HandlerInterceptorAdapter {
