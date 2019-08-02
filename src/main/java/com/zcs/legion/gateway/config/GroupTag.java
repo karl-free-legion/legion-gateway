@@ -25,6 +25,7 @@ public class GroupTag {
     Map<String , String> groupIdAndPlatCodes;
     String gatewayPack;
     String legionPackLog;
+    List<String> interceptorPath;
 
     @Data
     public static class AgentTag{
