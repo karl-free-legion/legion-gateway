@@ -1,6 +1,7 @@
 package com.zcs.legion.gateway.config;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.filter.AbstractTokenFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new GatewayFilterBean());
+        registry.addInterceptor(new GatewayFilterBean()).excludePathPatterns(ConstantsValues.X_NOT_FILTER_PATH);
     }
 
     class GatewayFilterBean extends HandlerInterceptorAdapter {
