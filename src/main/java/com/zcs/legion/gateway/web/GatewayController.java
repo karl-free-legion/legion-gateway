@@ -73,10 +73,10 @@ public class GatewayController {
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
-        //代理定义, 流程定义, Module请求
+        //代理定义, 流程定义ProcessTag, Module请求
         if (groupTag.getAgentTags().stream().anyMatch(a -> a.getTag().equalsIgnoreCase(groupId))) {
             entity = broker(request, body);
-        } else if (groupTag.getProcess().contains(groupId)) {
+        } else if (groupTag.getProcess().stream().anyMatch(a -> a.getGroupId().equalsIgnoreCase(groupId) && a.getTag().equalsIgnoreCase(tag))) {
             entity = simple("P", groupId, tag, body, request);
         } else {
             entity = simple("M", groupId, tag, body, request);
@@ -84,21 +84,6 @@ public class GatewayController {
 
         return entity;
     }
-
-/*    *//**
-     * 定义微信扫码请求
-     * @return ResponseEntity
-     *//*
-    @RequestMapping(value = "/{groupId:[a-z]}/{qrCode}")
-    public ResponseEntity<R> wxSweepDispatch(@PathVariable String groupId, @PathVariable String qrCode, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
-        }
-        Map<String,String> paramMap = new HashMap<>(2);
-        paramMap.put("qrCode",qrCode);
-        paramMap.put("type", groupId);
-        return simple("M", "exhibition", "code", JSON.toJSONString(paramMap), request);
-    }*/
 
     /**
      * 消息转发处理(简单消息）
@@ -162,6 +147,14 @@ public class GatewayController {
             RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
             descriptor.setSource(X.XReqSource.HTTP);
             descriptor.setRequest(req);
+
+            //如果是流程, defineId = tag, 此时group/tag意义不大, 关键是根据defineId找流程
+            //获取流程中定义的group/tag
+            if(type.equalsIgnoreCase("P")){
+                descriptor.setProcessDefine(true);
+                groupId = tag;
+            }
+
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
