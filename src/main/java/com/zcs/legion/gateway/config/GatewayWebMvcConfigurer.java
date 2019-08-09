@@ -47,7 +47,7 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     class GatewayFilterBean extends HandlerInterceptorAdapter {
         @Override
         public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler){
-            log.info("groupTag value:{} , url:{}" , JSONObject.toJSONString(groupTag), request.getRequestURI());
+            //log.info("groupTag value:{} , url:{}" , JSONObject.toJSONString(groupTag), request.getRequestURI());
 
             boolean flag = false;
             if(!CollectionUtils.isEmpty(groupTag.getInterceptorPath())){

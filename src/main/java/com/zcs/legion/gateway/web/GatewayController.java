@@ -76,7 +76,7 @@ public class GatewayController {
         //代理定义, 流程定义ProcessTag, Module请求
         if (groupTag.getAgentTags().stream().anyMatch(a -> a.getTag().equalsIgnoreCase(groupId))) {
             entity = broker(request, body);
-        } else if (groupTag.getProcess().stream().anyMatch(a -> a.getGroupId().equalsIgnoreCase(groupId) && a.getTag().equalsIgnoreCase(tag))) {
+        } else if (groupTag.getProcessDefines().stream().anyMatch(a -> a.getGroupId().equalsIgnoreCase(groupId) && a.getTag().equalsIgnoreCase(tag))) {
             entity = simple("P", groupId, tag, body, request);
         } else {
             entity = simple("M", groupId, tag, body, request);
@@ -106,29 +106,31 @@ public class GatewayController {
      */
     @ResponseBody
     @RequestMapping(value = "/checkProp")
-    public void checkProperties(){
+    public void checkProperties() {
         log.info(JSON.toJSONString(groupTag));
     }
 
     /**
      * 浏览器重定向
+     *
      * @param groupId
      * @param body
      * @param request
      * @return
      */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
-    public String redirect(@PathVariable String groupId,@RequestBody(required = false) String body, HttpServletRequest request){
+    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        Map<String,String> resultMap= redirectSimple("M", groupId, tag, body, request);
-        if(resultMap.get(REDIRECT_URL)!=null){
-            return "redirect:"+resultMap.get(REDIRECT_URL);
+        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            return "redirect:" + resultMap.get(REDIRECT_URL);
         }
         return "error";
     }
+
     /**
      * 定义简单流程
      *
@@ -150,7 +152,7 @@ public class GatewayController {
 
             //如果是流程, defineId = tag, 此时group/tag意义不大, 关键是根据defineId找流程
             //获取流程中定义的group/tag
-            if(type.equalsIgnoreCase("P")){
+            if (type.equalsIgnoreCase("P")) {
                 descriptor.setProcessDefine(true);
                 groupId = tag;
             }
@@ -172,6 +174,7 @@ public class GatewayController {
 
     /**
      * 请求结束后进行重定向
+     *
      * @param type
      * @param groupId
      * @param tag
@@ -179,13 +182,13 @@ public class GatewayController {
      * @param request
      * @return
      */
-    private Map<String,String> redirectSimple(String type, String groupId, String tag, String body, HttpServletRequest request) {
+    private Map<String, String> redirectSimple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
         }
         try {
-            String s = sendToModel(request,tag,groupId,body);
-            return JSON.parseObject(s,Map.class);
+            String s = sendToModel(request, tag, groupId, body);
+            return JSON.parseObject(s, Map.class);
         } catch (Exception ex) {
             log.warn("===>{}", ex.getMessage(), ex);
             return new HashMap<>();
@@ -194,16 +197,17 @@ public class GatewayController {
 
     /**
      * 将请求发到model
+     *
      * @param request
      * @param tag
      * @param groupId
      * @param body
      * @return
      */
-    private String sendToModel( HttpServletRequest request,String tag,String groupId,String body){
+    private String sendToModel(HttpServletRequest request, String tag, String groupId, String body) {
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
-        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE)?body:"";
+        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE) ? body : "";
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
         RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
         descriptor.setSource(X.XReqSource.HTTP);
@@ -211,6 +215,7 @@ public class GatewayController {
         Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
         return response.blockingGet();
     }
+
     /**
      * 设置返回headers
      *

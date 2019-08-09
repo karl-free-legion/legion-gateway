@@ -18,11 +18,12 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "tags")
 public class GroupTag {
     List<String> modules;
+    //List<String> process;
     /**
      * 定义流程列表
      * P://processDefineId
      */
-    List<ProcessTag> process;
+    List<ProcessTag> processDefines;
     List<AgentTag> agentTags;
     Map<String, List<String>> tokenTags;
     Map<String, String> groupIdAndPlatCodes;
