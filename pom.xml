@@ -29,7 +29,7 @@
         <dependency>
             <groupId>com.zcs.boot</groupId>
             <artifactId>spring-boot-starter-legion-client</artifactId>
-            <version>1.2.8.19</version>
+            <version>1.2.8.20</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

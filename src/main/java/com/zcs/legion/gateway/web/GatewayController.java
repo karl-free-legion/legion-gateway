@@ -164,10 +164,15 @@ public class GatewayController {
             log.warn("===>{}", ex.getMessage(), ex);
             if (ex instanceof LegionException) {
                 LegionException exception = (LegionException) ex;
-                return ResponseEntity.status(HttpStatus.OK).body(R.error(exception.getCode(), exception.getMessage()));
+                R result;
+                if (StringUtils.isNotBlank(exception.getErrorCode())) {
+                    result = R.error(exception.getCode(), exception.getErrorCode(), exception.getMessage());
+                } else {
+                    result = R.error(exception.getCode(), exception.getMessage());
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(result);
             } else {
                 return ResponseEntity.status(HttpStatus.OK).body(R.error(ExceptionConstants.TIME_OUT.getCode(), ExceptionConstants.TIME_OUT.getValue()));
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(R.error(ex.getMessage()));
             }
         }
     }
