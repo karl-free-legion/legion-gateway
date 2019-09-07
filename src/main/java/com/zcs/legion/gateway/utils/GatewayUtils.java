@@ -2,8 +2,8 @@ package com.zcs.legion.gateway.utils;
 
 import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
+import com.zcs.legion.gateway.common.ConstantsValues;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
@@ -60,6 +60,17 @@ public final class GatewayUtils {
             String headerName = headerNames.nextElement();
             builder.putHeaders(headerName, request.getHeader(headerName));
         }
+
+        if(null != request.getAttribute(ConstantsValues.X_ACCOUNT)){
+            builder.putHeaders(ConstantsValues.X_ACCOUNT ,
+                    request.getAttribute(ConstantsValues.X_ACCOUNT).toString());
+        }
+
+        if(null != request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID)){
+            builder.putHeaders(ConstantsValues.X_BUSINESS_BRH_ID ,
+                    request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID).toString());
+        }
+
         return builder.build();
     }
 

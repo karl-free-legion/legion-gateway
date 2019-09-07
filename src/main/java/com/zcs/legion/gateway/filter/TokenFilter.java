@@ -37,12 +37,6 @@ import static com.zcs.legion.gateway.filter.exception.InvalidTokenException.*;
 @Component
 public class TokenFilter extends AbstractTokenFilter {
 
-    @Value("${gateway.server.pack}")
-    private String sePath;
-
-    @Value("${legion_pack_logs}")
-    private String logFilePath;
-
     @Autowired
     private GroupTag groupTag;
 
@@ -107,7 +101,7 @@ public class TokenFilter extends AbstractTokenFilter {
      */
     private String getDecToken(String encToken){
         try {
-            se = SEFactory.init(sePath, null, logFilePath);
+            se = SEFactory.init(groupTag.getGatewayPack(), null, groupTag.getLegionPackLog());
             byte[] bytes = se.decData(0, Base64.decodeBase64(encToken),  CkeysTypeEnum.CKEYS80,
                     EncTypeEnum.AES_192_CBC);
             return new String(bytes);

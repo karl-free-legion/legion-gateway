@@ -23,6 +23,6 @@ public class InvalidTokenException extends RuntimeException{
 
     public static final InvalidTokenException TOKEN_CHECK_EMPTY = new InvalidTokenException(3002 , "token不可为空！");
 
-    public static final InvalidTokenException TOKEN_EXPIRE_OUT = new InvalidTokenException(2000, "login timeOut");
+    public static final InvalidTokenException TOKEN_EXPIRE_OUT = new InvalidTokenException(2000, "登录超时");
 
 }
