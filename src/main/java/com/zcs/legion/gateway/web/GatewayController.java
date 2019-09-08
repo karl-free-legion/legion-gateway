@@ -137,7 +137,7 @@ public class GatewayController {
      * @return ResponseEntity
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
+        if (log.isInfoEnabled()) {
             log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
         }
 
