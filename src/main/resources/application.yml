@@ -54,12 +54,13 @@ logging:
 
 #legion config
 legion:
-  net:
-    serverUrls:
-      - tcp://127.0.0.1:8850
-    node:
-      nodeId: legion-gateway
-      groupId: legion-gateway
+  module:
+    group-id: legion-gateway
+    link:
+      host: 172.16.211.161
+      port: 18001
+    heartbeat:
+      interval-seconds: 30
 
 
 ## lgm-gateway-server.pack的配置地址
