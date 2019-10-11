@@ -2,17 +2,17 @@ spring:
   application:
     name: zcs-legion-gateway
   redis:
-    sentinel:
-      master: mymaster
-      nodes: 172.16.211.228:26379,172.16.211.227:26379
+    host: 172.18.90.7
+    password:
+    port: 6380
     timeout: 3000
     database: 0
-    lettuce:
+    jedis:
       pool:
-        max-active: 60
-        max-idle: 20
-        min-idle: 5
+        max-active: 100
+        max-idle: 10
         max-wait: 1000
+        min-idle: 2
   profiles:
     include: tags
 
@@ -48,18 +48,26 @@ management:
 logging:
   path: logs
   level:
-    org.springframework: warn
+    org.springframework: info
     com.zcs.legion.gateway: info
     com.legion: info
 
 #legion config
 legion:
-  net:
-    serverUrls:
-      - tcp://127.0.0.1:8850
-    node:
-      nodeId: legion-gateway
-      groupId: legion-gateway
+  module:
+    group-id: legion-gateway
+    link:
+      host: 172.16.211.161
+      port: 18001
+    heartbeat:
+      interval-seconds: 30
+
+
+## lgm-gateway-server.pack的配置地址
+#gateway.server.pack: D:\home\zcs\lgm-global-permission\lgm-gateway-server-test.pack
+#
+## ccks的日志存放地址
+#legion_pack_logs: D:\home\zcs\lgm-global-permission\cckslog\cpklog.log
 
 #阿波罗服务配置,apollo.meta地址随环境变化. 其他都不变
 app:

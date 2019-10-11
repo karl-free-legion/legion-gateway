@@ -1,7 +1,6 @@
 package com.zcs.legion.gateway.filter;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
@@ -15,6 +14,7 @@ import com.zcsmart.ccks.exceptions.SecurityLibExecption;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -45,6 +45,7 @@ public class TokenFilter extends AbstractTokenFilter {
 
     private static SE se = null;
 
+
     @Override
     public boolean enable() {
         return true;
@@ -57,7 +58,7 @@ public class TokenFilter extends AbstractTokenFilter {
 
     @Override
     public void handler(HttpServletRequest request) throws InvalidTokenException {
-        log.info("come into tokenFilter ： {}" , request.getRequestURI());
+        log.debug("come into tokenFilter : {}" , request.getRequestURI());
 
         //验证tag是否存在
         Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
@@ -86,7 +87,6 @@ public class TokenFilter extends AbstractTokenFilter {
 
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
 
-        log.info("enc token data : {}" , JSONObject.toJSONString(tokenObj));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
         request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
                 .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));

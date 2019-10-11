@@ -4,7 +4,6 @@ import com.legion.client.common.RequestDescriptor;
 import com.legion.core.api.X;
 import com.zcs.legion.gateway.common.ConstantsValues;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
@@ -21,30 +20,30 @@ public final class GatewayUtils {
      * @param contentType  ApplicationType
      * @return  X.XDataFormat
      */
-    private static X.XDataFormat toFormat(String contentType){
-        switch (contentType){
-            case MediaType.APPLICATION_JSON_UTF8_VALUE:
-            case MediaType.APPLICATION_JSON_VALUE: return X.XDataFormat.JSON;
-            case MediaType.APPLICATION_XML_VALUE:  return X.XDataFormat.XML;
-            case "application/protobuf":
-            case "application/pb": return X.XDataFormat.PB;
-            default: return X.XDataFormat.JSON;
-        }
-    }
+    // private static X.XDataFormat toFormat(String contentType){
+    //     switch (contentType){
+    //         case MediaType.APPLICATION_JSON_UTF8_VALUE:
+    //         case MediaType.APPLICATION_JSON_VALUE: return X.XDataFormat.JSON;
+    //         case MediaType.APPLICATION_XML_VALUE:  return X.XDataFormat.XML;
+    //         case "application/protobuf":
+    //         case "application/pb": return X.XDataFormat.PB;
+    //         default: return X.XDataFormat.JSON;
+    //     }
+    // }
 
     /**
      * X.XDataFormat -> MediaType
      * @param format XDataFormat
      * @return  String
      */
-    private static String fromFormat(X.XDataFormat format){
-        switch (format.getNumber()){
-            case X.XDataFormat.PB_VALUE: return "application/pb";
-            case X.XDataFormat.XML_VALUE: return MediaType.APPLICATION_XML_VALUE;
-            case X.XDataFormat.JSON_VALUE:
-            default: return MediaType.APPLICATION_JSON_UTF8_VALUE;
-        }
-    }
+    // private static String fromFormat(X.XDataFormat format){
+    //     switch (format.getNumber()){
+    //         case X.XDataFormat.PB_VALUE: return "application/pb";
+    //         case X.XDataFormat.XML_VALUE: return MediaType.APPLICATION_XML_VALUE;
+    //         case X.XDataFormat.JSON_VALUE:
+    //         default: return MediaType.APPLICATION_JSON_UTF8_VALUE;
+    //     }
+    // }
 
     /**
      * 创建XHttpRequest
@@ -91,10 +90,10 @@ public final class GatewayUtils {
      */
     public static RequestDescriptor create(String contentType, String tag){
         //X.XDataFormat format = toFormat(contentType);
-        X.XDataFormat format = X.XDataFormat.PB;
+        // X.XDataFormat format = X.XDataFormat.PB;
         return RequestDescriptor.builder()
-                .acceptType(format)
-                .contentType(format)
+                // .acceptType(format)
+                // .contentType(format)
                 .lang(X.XLang.CN)
                 .timezone(X.XTimezone.UTC8)
                 .tag(tag)
