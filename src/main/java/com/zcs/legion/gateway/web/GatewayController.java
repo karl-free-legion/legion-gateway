@@ -138,7 +138,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isInfoEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
+            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
         }
 
         String contentType = request.getHeader("content-type");
@@ -161,7 +161,7 @@ public class GatewayController {
             String obj = response.blockingGet();
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         } catch (Exception ex) {
-            log.warn("===>{}", ex.getMessage(), ex);
+            log.warn("===>{}, fail: ", ex.getMessage(), ex);
             if (ex instanceof LegionException) {
                 LegionException exception = (LegionException) ex;
                 R result;
