@@ -229,7 +229,7 @@ public class GatewayController {
      */
     private HttpHeaders headers(RequestDescriptor descriptor) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setAll(descriptor.getExt());
+        headers.setAll(descriptor.getRequest().getHeadersMap());
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
         return headers;
     }
