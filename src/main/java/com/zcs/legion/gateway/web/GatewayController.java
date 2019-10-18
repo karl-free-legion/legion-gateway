@@ -230,8 +230,10 @@ public class GatewayController {
      */
     private HttpHeaders headers(RequestDescriptor descriptor) {
         HttpHeaders headers = new HttpHeaders();
-        Map<String, String>  source =  descriptor.getRequest().getHeadersMap();
-        source.remove("content-length");
+        Map<String, String> source = new HashMap<>(descriptor.getRequest().getHeadersMap());
+        if (source != null && source.containsKey("content-length")) {
+            source.remove("content-length");
+        }
         headers.setAll(source);
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_UTF8_VALUE);
         return headers;
