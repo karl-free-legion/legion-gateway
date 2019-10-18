@@ -138,7 +138,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isInfoEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
+            log.info("===>RequestURI: {}/{}/{}， body:{}", type, groupId, tag, body);
         }
 
         String contentType = request.getHeader("content-type");
