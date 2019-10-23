@@ -138,7 +138,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isInfoEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}， body:{}", type, groupId, tag, body);
+            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
         }
 
         String contentType = request.getHeader("content-type");
@@ -159,7 +159,7 @@ public class GatewayController {
 
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
-            log.info("===>ReplyURI: {}/{}/{}， body:{}", type, groupId, tag, obj);
+            log.info("===>ReplyURI: {}/{}/{}", type, groupId, tag);
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         } catch (Exception ex) {
             log.warn("===>{}, fail: ", ex.getMessage(), ex);
@@ -190,7 +190,7 @@ public class GatewayController {
      */
     private Map<String, String> redirectSimple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}, body: {}", type, groupId, tag, body);
+            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
         }
         try {
             String s = sendToModel(request, tag, groupId, body);
