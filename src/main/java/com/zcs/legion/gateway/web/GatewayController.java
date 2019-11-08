@@ -69,7 +69,6 @@ public class GatewayController {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
         }
-
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
@@ -138,7 +137,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isInfoEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
+            log.info("===>RequestURI: {}/{}/{}/{}/{}", type, groupId, tag, body, request.getParameterMap().keySet());
         }
 
         String contentType = request.getHeader("content-type");

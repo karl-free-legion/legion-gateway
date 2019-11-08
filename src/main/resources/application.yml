@@ -47,6 +47,7 @@ management:
 # logging
 logging:
   path: logs
+  file: lgm-gateway
   level:
     org.springframework: info
     com.zcs.legion.gateway: info
@@ -58,6 +59,7 @@ legion:
     group-id: legion-gateway
     link:
       host: 172.16.211.161
+#      host: 127.0.0.1
       port: 18001
     heartbeat:
       interval-seconds: 30
