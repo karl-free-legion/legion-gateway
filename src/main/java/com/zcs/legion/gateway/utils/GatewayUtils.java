@@ -70,7 +70,7 @@ public final class GatewayUtils {
             builder.putHeaders(ConstantsValues.X_BUSINESS_BRH_ID ,
                     request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID).toString());
         }
-
+        builder.putHeaders("out_trade_no" , request.getParameter("out_trade_no"));
         return builder.build();
     }
 

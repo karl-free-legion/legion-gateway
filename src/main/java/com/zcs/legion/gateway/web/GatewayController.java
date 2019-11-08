@@ -140,6 +140,11 @@ public class GatewayController {
             log.info("===>RequestURI: {}/{}/{}/{}/{}", type, groupId, tag, body, request.getParameterMap().keySet());
         }
 
+        //支付宝测试
+        if(tag.equals("personal/user/receive")){
+            body = null;
+        }
+
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
