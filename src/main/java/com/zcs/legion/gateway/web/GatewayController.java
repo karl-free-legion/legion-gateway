@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
+import com.legion.client.utils.MessageUtils;
+import com.legion.core.api.B;
 import com.legion.core.api.X;
 import com.legion.core.exception.LegionException;
 import com.legion.net.exception.ExceptionConstants;
@@ -58,13 +60,33 @@ public class GatewayController {
         return null;
     }
 
+    @ResponseBody
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<String> textPlain(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+
+        body = StringUtils.isBlank(body) ? " " : body;
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        ResponseEntity<R> entity = simple("M", groupId, tag, body, request);
+        String message = entity.getBody().get("message") + "";
+        if (StringUtils.isNotBlank(message)) {
+            B.RawMessage.Builder rawMessage = (B.RawMessage.Builder) MessageUtils.json2Message(message, B.RawMessage.class);
+            return ResponseEntity.status(HttpStatus.OK).body(rawMessage.getData());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body("handler fail");
+    }
+
     /**
      * 定义请求类型
      *
      * @return ResponseEntity
      */
-    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
     @ResponseBody
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -92,8 +114,8 @@ public class GatewayController {
      * @param body    消息体
      * @return 返回结果
      */
-    @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     @ResponseBody
+    @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
                                       @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
@@ -141,7 +163,7 @@ public class GatewayController {
         }
 
         //支付宝测试
-        if(tag.equals("personal/user/receive")){
+        if (tag.equals("personal/user/receive")) {
             body = null;
         }
 
