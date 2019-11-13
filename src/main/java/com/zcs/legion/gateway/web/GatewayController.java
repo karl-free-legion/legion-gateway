@@ -1,6 +1,8 @@
 package com.zcs.legion.gateway.web;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Maps;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -10,6 +12,7 @@ import com.legion.core.api.X;
 import com.legion.core.exception.LegionException;
 import com.legion.net.exception.ExceptionConstants;
 import com.zcs.legion.api.A;
+import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.result.R;
 import com.zcs.legion.gateway.utils.GatewayUtils;
@@ -27,7 +30,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -162,9 +167,35 @@ public class GatewayController {
             log.info("===>RequestURI: {}/{}/{}/{}/{}", type, groupId, tag, body, request.getParameterMap().keySet());
         }
 
-        //支付宝测试
-        if (tag.equals("personal/user/receive")) {
-            body = null;
+        //对于支付宝回调接口特殊处理
+        if(tag.equals(ConstantsValues.X_ALIPAY_SYNC)){
+            Map<String , String> headerMap = Maps.newHashMap();
+            Enumeration<String> headerNames = request.getHeaderNames();
+            while(headerNames.hasMoreElements()){
+                String headerName = headerNames.nextElement();
+                headerMap.put(headerName, request.getHeader(headerName));
+            }
+            log.info("===>header values:{}", JSON.toJSONString(headerMap));
+            //获取支付宝POST过来反馈信息
+            Map<String,String> params = new HashMap<String,String>();
+            Map requestParams = request.getParameterMap();
+            for (Iterator iterator = requestParams.keySet().iterator(); iterator.hasNext();) {
+                String name = (String) iterator.next();
+                String[] values = (String[]) requestParams.get(name);
+                String valueStr = "";
+                for (int i = 0; i < values.length; i++) {
+                    valueStr = (i == values.length - 1) ? valueStr + values[i]
+                            : valueStr + values[i] + ",";
+                }
+                //乱码解决，这段代码在出现乱码时使用
+                try{
+                    valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+                    params.put(name, valueStr);
+                }catch (Exception e){
+                    log.error(e.getMessage() , e);
+                }
+            }
+            request.setAttribute("alipayInfo" , JSONObject.toJSONString(params));
         }
 
         String contentType = request.getHeader("content-type");
