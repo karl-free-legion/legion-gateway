@@ -21,7 +21,4 @@ public class ConstantsValues {
 
     public static final  String X_CHECKE_TAGS = "mperm";
 
-    public static final  String X_ALIPAY_SYNC = "i/s/pay/v1/alipayOrderSync";
-
-
 }

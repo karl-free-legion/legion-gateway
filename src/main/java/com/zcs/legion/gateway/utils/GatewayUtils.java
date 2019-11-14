@@ -71,10 +71,6 @@ public final class GatewayUtils {
                     request.getAttribute(ConstantsValues.X_BUSINESS_BRH_ID).toString());
         }
 
-        if(null != request.getAttribute("alipayInfo")){
-            builder.putHeaders("alipayInfo" , request.getAttribute("alipayInfo").toString());
-        }
-
         return builder.build();
     }
 
