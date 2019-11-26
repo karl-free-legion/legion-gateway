@@ -148,7 +148,17 @@ public class GatewayController {
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        String contentType = request.getHeader("content-type");
+        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
+
+        RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
+        descriptor.setSource(X.XReqSource.HTTP);
+        descriptor.setRequest(req);
+
+        Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
+        String obj = response.blockingGet();
+        Map<String, String> resultMap = JSON.parseObject(obj, Map.class);
         if (resultMap.get(REDIRECT_URL) != null) {
             return "redirect:" + resultMap.get(REDIRECT_URL);
         }
