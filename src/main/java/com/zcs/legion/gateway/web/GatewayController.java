@@ -63,10 +63,6 @@ public class GatewayController {
     @ResponseBody
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String> textPlain(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
-        }
-
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
@@ -88,9 +84,6 @@ public class GatewayController {
     @ResponseBody
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
-        }
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
@@ -141,9 +134,6 @@ public class GatewayController {
      */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
-        }
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
         if (resultMap.get(REDIRECT_URL) != null) {
@@ -159,7 +149,7 @@ public class GatewayController {
      */
     private ResponseEntity<R> simple(String type, String groupId, String tag, String body, HttpServletRequest request) {
         if (log.isInfoEnabled()) {
-            log.info("===>RequestURI: {}/{}/{}/{}/{}", type, groupId, tag, body, request.getParameterMap().keySet());
+            log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
         }
 
         String contentType = request.getHeader("content-type");
@@ -180,7 +170,6 @@ public class GatewayController {
 
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
-            log.info("===>ReplyURI: {}/{}/{}", type, groupId, tag);
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         } catch (Exception ex) {
             log.warn("===>{}, fail: ", ex.getMessage(), ex);
