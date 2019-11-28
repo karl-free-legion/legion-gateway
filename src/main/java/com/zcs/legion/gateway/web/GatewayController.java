@@ -170,6 +170,7 @@ public class GatewayController {
 
             Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
             String obj = response.blockingGet();
+            log.info("===>ReplyURI: {}/{}/{}", type, groupId, tag);
             return ResponseEntity.status(HttpStatus.OK).headers(headers(descriptor)).body(R.success(obj));
         } catch (Exception ex) {
             log.warn("===>{}, fail: ", ex.getMessage(), ex);
