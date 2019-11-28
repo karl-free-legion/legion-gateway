@@ -61,7 +61,8 @@ public class GatewayController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE},
+            method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<String> textPlain(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
@@ -82,7 +83,7 @@ public class GatewayController {
      * @return ResponseEntity
      */
     @ResponseBody
-    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
@@ -119,7 +120,7 @@ public class GatewayController {
      * 可通过该接口查看配置是否更新
      */
     @ResponseBody
-    @RequestMapping(value = "/checkProp")
+    @RequestMapping(value = "/checkProp", method = {RequestMethod.GET, RequestMethod.POST})
     public void checkProperties() {
         log.info(JSON.toJSONString(groupTag));
     }
@@ -132,7 +133,7 @@ public class GatewayController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", method = {RequestMethod.GET, RequestMethod.POST})
     public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
