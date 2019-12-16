@@ -139,12 +139,11 @@ public class GatewayController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE,
-            MediaType.MULTIPART_FORM_DATA_VALUE})
-    public String redirect(@PathVariable String groupId, @RequestBody(required = true) String body, HttpServletRequest request) {
-
-        log.info("===>GroupId: {}, tag: {}, body: {}", groupId, request.getRequestURI(), body);
-
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}, body: {}", groupId, request.getRequestURI(), body);
+        }
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
@@ -166,16 +165,18 @@ public class GatewayController {
         return "error";
     }
 
-//    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
-//    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-//        log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
-//        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-//        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-//        if (resultMap.get(REDIRECT_URL) != null) {
-//            return "redirect:" + resultMap.get(REDIRECT_URL);
-//        }
-//        return "error";
-//    }
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            return "redirect:" + resultMap.get(REDIRECT_URL);
+        }
+        return "error";
+    }
 
     /**
      * 定义简单流程
