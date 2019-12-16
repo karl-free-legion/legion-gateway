@@ -141,7 +141,7 @@ public class GatewayController {
      */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE,
             MediaType.MULTIPART_FORM_DATA_VALUE})
-    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+    public String redirect(@PathVariable String groupId, @RequestBody(required = true) String body, HttpServletRequest request) {
 
         log.info("===>GroupId: {}, tag: {}, body: {}", groupId, request.getRequestURI(), body);
 
@@ -166,16 +166,16 @@ public class GatewayController {
         return "error";
     }
 
-//    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
-//    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-//        log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
-//        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-//        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-//        if (resultMap.get(REDIRECT_URL) != null) {
-//            return "redirect:" + resultMap.get(REDIRECT_URL);
-//        }
-//        return "error";
-//    }
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            return "redirect:" + resultMap.get(REDIRECT_URL);
+        }
+        return "error";
+    }
 
     /**
      * 定义简单流程
