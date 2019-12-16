@@ -166,16 +166,16 @@ public class GatewayController {
         return "error";
     }
 
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
-    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
-        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-        if (resultMap.get(REDIRECT_URL) != null) {
-            return "redirect:" + resultMap.get(REDIRECT_URL);
-        }
-        return "error";
-    }
+//    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+//    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+//        log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
+//        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+//        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+//        if (resultMap.get(REDIRECT_URL) != null) {
+//            return "redirect:" + resultMap.get(REDIRECT_URL);
+//        }
+//        return "error";
+//    }
 
     /**
      * 定义简单流程
