@@ -131,45 +131,17 @@ public class GatewayController {
         log.info(JSON.toJSONString(groupTag));
     }
 
-    /**
-     * 浏览器重定向
-     *
-     * @param groupId
-     * @param body
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}, body: {}", groupId, request.getRequestURI(), body);
-        }
-        body = StringUtils.isBlank(body) ? " " : body;
-        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
-
-        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        String contentType = request.getHeader("content-type");
-        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
-        X.XHttpRequest req = GatewayUtils.httpRequest(request);
-
-        RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
-        descriptor.setSource(X.XReqSource.HTTP);
-        descriptor.setRequest(req);
-
-        Single<String> response = legionConnector.sendHttpMessage(groupId, descriptor, body);
-        String obj = response.blockingGet();
-        Map<String, String> resultMap = JSON.parseObject(obj, Map.class);
-        if (resultMap.get(REDIRECT_URL) != null) {
-            return "redirect:" + resultMap.get(REDIRECT_URL);
-        }
-        return "error";
-    }
 
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
-        }
+//        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
+            log.info("===>body:{}", body);
+            log.info("===>requestParam:{}", request.getParameterMap().keySet());
+//        }
+        body = StringUtils.isBlank(body) ? " " : body;
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
         if (resultMap.get(REDIRECT_URL) != null) {
@@ -259,8 +231,8 @@ public class GatewayController {
      */
     private String sendToModel(HttpServletRequest request, String tag, String groupId, String body) {
         String contentType = request.getHeader("content-type");
-        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
-        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE) ? body : "";
+//        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+//        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE) ? body : "";
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
         RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
         descriptor.setSource(X.XReqSource.HTTP);
