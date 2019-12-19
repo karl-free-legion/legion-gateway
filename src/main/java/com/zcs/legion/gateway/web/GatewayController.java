@@ -149,7 +149,14 @@ public class GatewayController {
 
     @RequestMapping(value = "/opt/**")
     public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
-        log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap());
+        log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap().keySet());
+        log.info("==>method: {},user: {},addr: {}, host:{}, port:{}, header: {}",
+                request.getMethod(),
+                request.getRemoteUser(),
+                request.getRemoteAddr(),
+                request.getRemoteHost(),
+                request.getRemotePort(),
+                request.getHeaderNames());
         return "redirect:http://baidu.com";
     }
 
