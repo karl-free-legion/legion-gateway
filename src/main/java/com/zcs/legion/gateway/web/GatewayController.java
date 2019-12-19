@@ -1,6 +1,7 @@
 package com.zcs.legion.gateway.web;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -147,6 +148,7 @@ public class GatewayController {
         return "error";
     }
 
+    @VisibleForTesting
     @RequestMapping(value = "/opt/**")
     public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
         log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap().keySet());
