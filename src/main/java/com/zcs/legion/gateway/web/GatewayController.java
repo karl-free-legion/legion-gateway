@@ -61,8 +61,8 @@ public class GatewayController {
         return null;
     }
 
-    //@ResponseBody
-    //@RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @ResponseBody
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<String> textPlain(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -86,8 +86,8 @@ public class GatewayController {
      *
      * @return ResponseEntity
      */
-    //@ResponseBody
-    //@RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
+    @ResponseBody
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**")
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
@@ -115,8 +115,8 @@ public class GatewayController {
      * @param body    消息体
      * @return 返回结果
      */
-    //@ResponseBody
-    //@PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
+    @ResponseBody
+    @PostMapping(value = "/{type:m|p}/{groupId}/{tag}")
     public ResponseEntity<R> dispatch(@PathVariable String type, @PathVariable String groupId, @PathVariable String tag,
                                       @RequestBody(required = false) String body, HttpServletRequest request) {
         REQUEST_TOTAL.increment();
@@ -133,7 +133,7 @@ public class GatewayController {
     }
 
 
-    //@RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
                 body, request.getParameterMap().keySet());
