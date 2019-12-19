@@ -132,7 +132,7 @@ public class GatewayController {
     }
 
 
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", method = RequestMethod.POST)
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
 //        if (log.isDebugEnabled()) {
             log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
