@@ -135,7 +135,7 @@ public class GatewayController {
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
-                    body, request.getParameterMap().keySet());
+                body, request.getParameterMap().keySet());
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
@@ -145,6 +145,12 @@ public class GatewayController {
             return "redirect:" + resultMap.get(REDIRECT_URL);
         }
         return "error";
+    }
+
+    @RequestMapping(value = "/opt/**")
+    public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
+        log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap());
+        return "redirect:http://baidu.com";
     }
 
     /**
