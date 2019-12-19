@@ -149,7 +149,7 @@ public class GatewayController {
     }
 
     @VisibleForTesting
-    @RequestMapping(value = "/opt/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/opt/**")
     public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
         log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap().keySet());
         log.info("==>method: {}, query: {},addr: {}, host:{}, port:{}, IP: {}",
