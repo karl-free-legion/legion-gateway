@@ -139,15 +139,15 @@ public class GatewayController {
             log.info("===>body:{}", body);
             log.info("===>requestParam:{}", request.getParameterMap().keySet());
 //        }
-        body = StringUtils.isBlank(body) ? " " : body;
-        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
-
-        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-        if (resultMap.get(REDIRECT_URL) != null) {
-            return "redirect:" + resultMap.get(REDIRECT_URL);
-        }
-        return "error";
+//        body = StringUtils.isBlank(body) ? " " : body;
+//        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+//
+//        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+//        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+//        if (resultMap.get(REDIRECT_URL) != null) {
+//            return "redirect:" + resultMap.get(REDIRECT_URL);
+//        }
+        return "redirect:http://www.baidu.com";
     }
 
     /**
