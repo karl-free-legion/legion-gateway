@@ -132,22 +132,19 @@ public class GatewayController {
     }
 
 
-    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", method = RequestMethod.POST)
+    @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-//        if (log.isDebugEnabled()) {
-            log.info("===>GroupId: {}, tags: {}", groupId, request.getRequestURI());
-            log.info("===>body:{}", body);
-            log.info("===>requestParam:{}", request.getParameterMap().keySet());
-//        }
-//        body = StringUtils.isBlank(body) ? " " : body;
-//        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
-//
-//        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-//        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-//        if (resultMap.get(REDIRECT_URL) != null) {
-//            return "redirect:" + resultMap.get(REDIRECT_URL);
-//        }
-        return "redirect:http://www.baidu.com";
+        log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
+                    body, request.getParameterMap().keySet());
+        body = StringUtils.isBlank(body) ? " " : body;
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            return "redirect:" + resultMap.get(REDIRECT_URL);
+        }
+        return "error";
     }
 
     /**
