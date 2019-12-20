@@ -1,6 +1,7 @@
 package com.zcs.legion.gateway.web;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -135,10 +136,7 @@ public class GatewayController {
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
-                    body, request.getParameterMap().keySet());
-        if(null != request.getParameter("paymentId")&& null != request.getParameter("Id")){
-            body = "paymentId="+ request.getParameter("paymentId");
-        }
+                body, request.getParameterMap().keySet());
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
@@ -148,6 +146,41 @@ public class GatewayController {
             return "redirect:" + resultMap.get(REDIRECT_URL);
         }
         return "error";
+    }
+
+    @VisibleForTesting
+    @RequestMapping(value = "/opt/**")
+    public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
+        log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap().keySet());
+        log.info("==>method: {}, query: {},addr: {}, host:{}, port:{}, IP: {}",
+                request.getMethod(),
+                request.getQueryString(),
+                request.getRemoteAddr(),
+                request.getRemoteHost(),
+                request.getRemotePort(),
+                getIpAddress(request));
+        return "redirect:http://baidu.com";
+    }
+
+    @VisibleForTesting
+    private String getIpAddress(HttpServletRequest request) {
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        return ip;
     }
 
     /**
