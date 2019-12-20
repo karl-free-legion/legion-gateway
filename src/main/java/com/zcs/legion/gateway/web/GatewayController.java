@@ -136,6 +136,9 @@ public class GatewayController {
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
                     body, request.getParameterMap().keySet());
+        if(null != request.getParameter("paymentId")&& null != request.getParameter("Id")){
+            body = "paymentId="+ request.getParameter("paymentId");
+        }
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
