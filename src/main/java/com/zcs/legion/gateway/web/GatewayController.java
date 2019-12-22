@@ -25,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,12 +134,45 @@ public class GatewayController {
     }
 
 
+    /**
+     * 浏览器重定向
+     *
+     * @param groupId
+     * @param body
+     * @param request
+     * @return
+     */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**")
+    public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            return "redirect:" + resultMap.get(REDIRECT_URL);
+        }
+        return "error";
+    }
+
+    /**
+     * 浏览器重定向接收参数
+     * @param groupId
+     * @param body
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
                 body, request.getParameterMap().keySet());
-        if(null != request.getParameter("paymentId")){
-           body = "paymentId="+ request.getParameter("paymentId");
+        if(!CollectionUtils.isEmpty(request.getParameterMap()) && StringUtils.isBlank(body)){
+            StringBuilder builder = new StringBuilder();
+            request.getParameterMap().forEach((k , v)->{
+                builder.append(k+"=");
+                builder.append(v[0]+"&");
+            });
+            body = builder.toString();
         }
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
@@ -149,41 +183,6 @@ public class GatewayController {
             return "redirect:" + resultMap.get(REDIRECT_URL);
         }
         return "error";
-    }
-
-    @VisibleForTesting
-    @RequestMapping(value = "/opt/**")
-    public String opt(HttpServletRequest request, @RequestBody(required = false) String body) {
-        log.info("========> Opt url: {}, body: {}, Map: {}", request.getRequestURI(), body, request.getParameterMap().keySet());
-        log.info("==>method: {}, query: {},addr: {}, host:{}, port:{}, IP: {}",
-                request.getMethod(),
-                request.getQueryString(),
-                request.getRemoteAddr(),
-                request.getRemoteHost(),
-                request.getRemotePort(),
-                getIpAddress(request));
-        return "redirect:http://baidu.com";
-    }
-
-    @VisibleForTesting
-    private String getIpAddress(HttpServletRequest request) {
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
     }
 
     /**
