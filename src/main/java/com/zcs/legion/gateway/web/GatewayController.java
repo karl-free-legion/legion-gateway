@@ -156,16 +156,16 @@ public class GatewayController {
     }
 
     /**
-     * 浏览器重定向接收参数
+     * 浏览器重定向接收参数(pay服务渠道支付专用)
      * @param groupId
      * @param body
      * @param request
      * @return
      */
-    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**")
+    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
-        log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}", groupId, request.getRequestURI(),
-                body, request.getParameterMap().keySet());
+        log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}, header:{}", groupId, request.getRequestURI(),
+                body, request.getParameterMap().keySet(), request.getHeader("content-type"));
         if(!CollectionUtils.isEmpty(request.getParameterMap()) && StringUtils.isBlank(body)){
             StringBuilder builder = new StringBuilder();
             request.getParameterMap().forEach((k , v)->{
