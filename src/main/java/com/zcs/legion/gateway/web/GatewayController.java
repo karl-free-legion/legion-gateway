@@ -162,7 +162,7 @@ public class GatewayController {
      * @param request
      * @return
      */
-    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE})
+    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**")
     public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}, header:{}", groupId, request.getRequestURI(),
                 body, request.getParameterMap().keySet(), request.getHeader("content-type"));
