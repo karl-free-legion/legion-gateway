@@ -1,7 +1,6 @@
 package com.zcs.legion.gateway.web;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -29,6 +28,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -163,9 +164,11 @@ public class GatewayController {
      * @return
      */
     @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**")
-    public String redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+    public void redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request,
+                             HttpServletResponse response) throws IOException {
         log.info("===>GroupId: {}, redirect tag: {}, body:{}, requestParam:{}, header:{}", groupId, request.getRequestURI(),
                 body, request.getParameterMap().keySet(), request.getHeader("content-type"));
+
         if(!CollectionUtils.isEmpty(request.getParameterMap()) && StringUtils.isBlank(body)){
             StringBuilder builder = new StringBuilder();
             request.getParameterMap().forEach((k , v)->{
@@ -174,15 +177,22 @@ public class GatewayController {
             });
             body = builder.toString();
         }
-        body = StringUtils.isBlank(body) ? " " : body;
-        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
-
-        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-        Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
-        if (resultMap.get(REDIRECT_URL) != null) {
-            return "redirect:" + resultMap.get(REDIRECT_URL);
+        if(StringUtils.isBlank(body)){
+            log.info("===>content type is null!");
+            return;
         }
-        return "error";
+
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
+        RequestDescriptor descriptor = GatewayUtils.create(request.getHeader("content-type"), tag);
+        descriptor.setSource(X.XReqSource.HTTP);
+        descriptor.setRequest(req);
+        String s = legionConnector.sendHttpMessage(groupId, descriptor, body).blockingGet().toString();
+        Map<String, String> resultMap = JSON.parseObject(s, Map.class);
+        if (resultMap.get(REDIRECT_URL) != null) {
+            response.sendRedirect(resultMap.get(REDIRECT_URL));
+        }
     }
 
     /**
@@ -266,8 +276,8 @@ public class GatewayController {
      */
     private String sendToModel(HttpServletRequest request, String tag, String groupId, String body) {
         String contentType = request.getHeader("content-type");
-//        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
-//        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE) ? body : "";
+        contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
+        body = contentType.equalsIgnoreCase(MediaType.APPLICATION_JSON_VALUE) ? body : "";
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
         RequestDescriptor descriptor = GatewayUtils.create(contentType, tag);
         descriptor.setSource(X.XReqSource.HTTP);
