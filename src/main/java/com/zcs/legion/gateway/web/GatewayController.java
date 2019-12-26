@@ -177,12 +177,7 @@ public class GatewayController {
             });
             body = builder.toString();
         }
-        if(StringUtils.isBlank(body)){
-            log.info("===>content type is null!");
-            return;
-        }
-
-        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(StringUtils.isBlank(body)?"":body));
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
         RequestDescriptor descriptor = GatewayUtils.create(request.getHeader("content-type"), tag);
@@ -190,7 +185,7 @@ public class GatewayController {
         descriptor.setRequest(req);
         String s = legionConnector.sendHttpMessage(groupId, descriptor, body).blockingGet().toString();
         Map<String, String> resultMap = JSON.parseObject(s, Map.class);
-        if (resultMap.get(REDIRECT_URL) != null) {
+        if (StringUtils.isNotBlank(resultMap.get(REDIRECT_URL))) {
             response.sendRedirect(resultMap.get(REDIRECT_URL));
         }
     }
