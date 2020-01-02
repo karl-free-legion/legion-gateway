@@ -24,9 +24,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,9 +64,13 @@ public class GatewayController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE},
-            method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", consumes = {MediaType.TEXT_PLAIN_VALUE,
+            MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE},method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<String> textPlain(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
+
         body = StringUtils.isBlank(body) ? " " : body;
         body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(body));
 
@@ -85,6 +92,9 @@ public class GatewayController {
     @ResponseBody
     @RequestMapping(value = "/{groupId:[A-z|0-9]*}/**", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity<R> dispatch(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
 
@@ -125,6 +135,7 @@ public class GatewayController {
         log.info(JSON.toJSONString(groupTag));
     }
 
+
     /**
      * 浏览器重定向
      *
@@ -135,12 +146,48 @@ public class GatewayController {
      */
     @RequestMapping(value = "/redirect/{groupId:[A-z|0-9]*}/**", method = {RequestMethod.GET, RequestMethod.POST})
     public String redirect(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request) {
+        if (log.isDebugEnabled()) {
+            log.info("===>GroupId: {}, tag: {}", groupId, request.getRequestURI());
+        }
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
         Map<String, String> resultMap = redirectSimple("M", groupId, tag, body, request);
         if (resultMap.get(REDIRECT_URL) != null) {
             return "redirect:" + resultMap.get(REDIRECT_URL);
         }
         return "error";
+    }
+
+    /**
+     * 浏览器重定向接收参数(pay服务渠道支付专用)
+     * @param groupId
+     * @param body
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/redirect/data/{groupId:[A-z|0-9]*}/**", method = {RequestMethod.GET, RequestMethod.POST})
+    public void redirectForm(@PathVariable String groupId, @RequestBody(required = false) String body, HttpServletRequest request,
+                             HttpServletResponse response) throws IOException {
+        log.info("===>GroupId: {}, redirect tag: {}", groupId, request.getRequestURI());
+
+        if(!CollectionUtils.isEmpty(request.getParameterMap()) && StringUtils.isBlank(body)){
+            StringBuilder builder = new StringBuilder();
+            request.getParameterMap().forEach((k , v)->{
+                builder.append(k+"=");
+                builder.append(v[0]+"&");
+            });
+            body = builder.toString();
+        }
+        body = MessageUtils.toJson(B.RawMessage.newBuilder().setData(StringUtils.isBlank(body)?"":body));
+        String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
+        X.XHttpRequest req = GatewayUtils.httpRequest(request);
+        RequestDescriptor descriptor = GatewayUtils.create(request.getHeader("content-type"), tag);
+        descriptor.setSource(X.XReqSource.HTTP);
+        descriptor.setRequest(req);
+        String s = legionConnector.sendHttpMessage(groupId, descriptor, body).blockingGet().toString();
+        Map<String, String> resultMap = JSON.parseObject(s, Map.class);
+        if (StringUtils.isNotBlank(resultMap.get(REDIRECT_URL))) {
+            response.sendRedirect(resultMap.get(REDIRECT_URL));
+        }
     }
 
     /**
