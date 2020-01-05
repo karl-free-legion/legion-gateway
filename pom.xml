@@ -35,6 +35,10 @@
             <artifactId>fastjson</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.zcsmart.ccks</groupId>
+            <artifactId>zcs-ccks</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.ctrip.framework.apollo</groupId>
             <artifactId>apollo-client</artifactId>
         </dependency>
