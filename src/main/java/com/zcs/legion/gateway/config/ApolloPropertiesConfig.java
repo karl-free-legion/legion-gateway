@@ -10,7 +10,6 @@ import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.cloud.context.scope.refresh.RefreshScope;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -20,11 +19,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @Slf4j
 @Configuration
-@ComponentScan("com.zcs.legion.gateway.config")
 public class ApolloPropertiesConfig implements ApplicationContextAware {
 
     @Autowired
-    private  RefreshScope refreshScope;
+    private RefreshScope refreshScope;
 
     private ApplicationContext applicationContext;
 
@@ -33,7 +31,7 @@ public class ApolloPropertiesConfig implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    public ApolloPropertiesConfig(final RefreshScope refreshScope){
+    public ApolloPropertiesConfig(final RefreshScope refreshScope) {
         this.refreshScope = refreshScope;
     }
 

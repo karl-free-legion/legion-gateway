@@ -60,9 +60,79 @@
             <url>http://172.18.80.253:8081/nexus/content/groups/public/</url>
         </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus</id>
+            <url>http://172.18.80.253:8081/nexus/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.2.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <proguardVersion>6.2.2</proguardVersion>
+                    <injar>${project.artifactId}-${project.version}.jar</injar>
+                    <outjar>${project.artifactId}-${project.version}.jar</outjar>
+                    <obfuscate>true</obfuscate>
+                    <options>
+                        <option>-dontshrink</option>
+                        <option>-dontoptimize</option>
+                        <option>-adaptclassstrings</option>
+                        <option>-overloadaggressively</option>
+                        <option>-ignorewarnings</option>
+                        <option>-repackageclasses com.zcs.legion.gateway.filter</option>
+                        <option>-allowaccessmodification</option>
+                        <option>-keepattributes Exceptions, InnerClasses, Signature,
+                            Deprecated, SourceFile, LineNumberTable, *Annotation*, EnclosingMethod
+                        </option>
+                        <option>-adaptresourcefilecontents **.properties,META-INF/MANIFEST.MF,META-INF/spring.*</option>
+                        <option>-keepnames interface **</option>
+                        <option>-keepparameternames</option>
+
+                        <option>-keepclassmembers class com.zcs.legion.gateway.config.GroupTag{*;}</option>
+                        <option>-keep class com.zcs.legion.gateway.config.GroupTag$* {*;}</option>
+                        <option>-keeppackagenames com.zcs.legion.api</option>
+
+                        <option>-keepclasseswithmembers public class * {
+                            public static void main(java.lang.String[]);
+                            }
+                        </option>
+                        <option>-keep interface * extends * { *; }</option>
+                        <option>-keepclassmembers class * {
+                            @org.springframework.context.annotation.Bean *;
+                            @org.springframework.beans.factory.annotation.Value *;
+                            @org.springframework.beans.factory.annotation.Autowired *;
+                            @org.springframework.web.bind.annotation.RequestBody *;
+                            @org.springframework.web.bind.annotation.PathVariable *;
+                            }
+                        </option>
+                    </options>
+                    <injarNotExistsSkip>true</injarNotExistsSkip>
+                    <libs>
+                        <lib>${java.home}/lib/rt.jar</lib>
+                        <lib>${java.home}/lib/jce.jar</lib>
+                    </libs>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>net.sf.proguard</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>6.2.2</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
