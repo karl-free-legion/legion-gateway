@@ -2,17 +2,17 @@ spring:
   application:
     name: zcs-legion-gateway
   redis:
-    sentinel:
-      master: mymaster
-      nodes: 172.16.211.228:26379,172.16.211.227:26379
+    host: 172.18.90.7
+    password:
+    port: 6380
     timeout: 3000
     database: 0
-    lettuce:
+    jedis:
       pool:
         max-active: 100
-        max-idle: 20
-        min-idle: 5
+        max-idle: 10
         max-wait: 1000
+        min-idle: 2
   profiles:
     include: tags
 

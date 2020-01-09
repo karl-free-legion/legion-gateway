@@ -1,6 +1,6 @@
 package com.zcs.legion.gateway.config;
 
-import com.zcs.legion.gateway.common.CacheUtils;
+import com.zcs.legion.gateway.common.CacheHelper;
 import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.filter.AbstractTokenFilter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.List;
 public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     public final List<AbstractTokenFilter> filters;
     @Autowired
-    private CacheUtils cacheUtils;
+    private CacheHelper cacheHelper;
     @Autowired
     private AccessProperties accessProperties;
 
@@ -36,7 +36,7 @@ public class GatewayWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         if (accessProperties.isEnable()) {
-            registry.addInterceptor(new AccessHandlerInterceptor(cacheUtils));
+            registry.addInterceptor(new AccessHandlerInterceptor(cacheHelper));
         }
         registry.addInterceptor(new GatewayFilterBean(groupTag, filters)).excludePathPatterns(ConstantsValues.X_NOT_FILTER_PATH);
     }
