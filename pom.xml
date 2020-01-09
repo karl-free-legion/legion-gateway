@@ -103,7 +103,8 @@
 
                         <option>-keepclassmembers class com.zcs.legion.gateway.config.GroupTag{*;}</option>
                         <option>-keep class com.zcs.legion.gateway.config.GroupTag$* {*;}</option>
-                        <option>-keeppackagenames com.zcs.legion.api</option>
+                        <option>-keep public class * extends com.google.protobuf.GeneratedMessageV3 { *; }</option>
+                        <option>-keep class com.zcs.legion.api.A$*$* { *; }</option>
 
                         <option>-keepclasseswithmembers public class * {
                             public static void main(java.lang.String[]);
