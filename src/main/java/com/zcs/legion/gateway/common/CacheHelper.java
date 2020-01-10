@@ -24,15 +24,8 @@ public class CacheHelper {
     public final static String DEFAULT_KEY = "zcs:commons:gate";
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-
-    /**
-     * 判断key是否存在
-     */
-    public Boolean hasKey(String key) {
-        return stringRedisTemplate.hasKey(key);
-    }
-
-    public Set<Object> keysForHash(String key) {
+    
+    private Set<Object> keysForHash(String key) {
         key = StringUtils.isBlank(key) ? DEFAULT_KEY : key;
         return stringRedisTemplate.opsForHash().keys(key);
     }
@@ -42,7 +35,7 @@ public class CacheHelper {
      */
     public Object keyFirstForHash(String key) {
         Set<Object> keys = keysForHash(key);
-        if (keys == null || keys.isEmpty()) {
+        if (Objects.isNull(key) || keys.isEmpty()) {
             return null;
         }
 
@@ -85,8 +78,11 @@ public class CacheHelper {
         }
     }
 
+    /**
+     * 缓存<String, String>4小时
+     */
     private Cache<String, String> accessCache = CacheBuilder.newBuilder()
-            .expireAfterAccess(Duration.ofMinutes(1L))
+            .expireAfterAccess(Duration.ofHours(4L))
             .maximumSize(20)
             .build();
 }
