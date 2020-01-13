@@ -7,6 +7,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 用来生成加密和Redis键值对
@@ -20,7 +23,7 @@ public class AesTests {
     @Test
     public void run() {
         //Access Expire
-        String originalString = "2020-01-20";
+        String originalString = "2020-01-13";
         String secretKey = "zcs:commons:gate";
         String field = RandomStringUtils.randomAlphanumeric(16);
 
@@ -34,5 +37,10 @@ public class AesTests {
         log.info("===> DEL {}", secretKey);
         log.info("===> HSET {} {} {}", secretKey, field, encryptedString);
         log.info("===> EXPIREAT {} {}", secretKey, DateUtils.timestamp(decryptedString));
+    }
+
+    private long timestamp(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(date, formatter).toEpochSecond(ZoneOffset.of("+4"));
     }
 }
