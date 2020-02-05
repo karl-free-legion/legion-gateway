@@ -96,13 +96,9 @@ public class TokenFilter extends AbstractTokenFilter {
         log.info("===>token values:{}" , token);
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
         log.info("===>tokenObj values:{}" , JSON.toJSONString(tokenObj));
-        log.info("===>groupTag values:{}" , JSON.toJSONString(groupTag));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
-        log.info("===>groupId values:{}" , groupId);
-        String code = groupTag.getGroupIdAndPlatCodes().get(groupId);
-        log.info("===>code values:{}", code);
         request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
-                .get(code));
+                .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
     }
 
     /**
