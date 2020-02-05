@@ -23,6 +23,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +69,12 @@ public class TokenFilter extends AbstractTokenFilter {
 
         if(groupId.equals(ConstantsValues.X_CHECKE_TAGS) && !checkTag(groupId , tag)){
             throw TAG_CHECKE_ILLEGAL;
+        }
+
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while(headerNames.hasMoreElements()){
+            String headerName = headerNames.nextElement();
+            log.info("===>header values:{};{}" , headerName, request.getHeader(headerName));
         }
 
         String encToken = request.getHeader(ConstantsValues.X_AUTH_TOKEN);

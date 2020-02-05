@@ -201,11 +201,6 @@ public class GatewayController {
             log.info("===>RequestURI: {}/{}/{}", type, groupId, tag);
         }
 
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while(headerNames.hasMoreElements()){
-            String headerName = headerNames.nextElement();
-            log.info("===>header values:{};{}" , headerName, request.getHeader(headerName));
-        }
         String contentType = request.getHeader("content-type");
         contentType = StringUtils.isBlank(contentType) ? MediaType.APPLICATION_JSON_VALUE : contentType;
         X.XHttpRequest req = GatewayUtils.httpRequest(request);
