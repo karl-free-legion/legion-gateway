@@ -94,10 +94,13 @@ public class TokenFilter extends AbstractTokenFilter {
         //解密token
         String token = getDecToken(encToken);
         log.info("===>token values:{}" , token);
-        EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
+        JSONObject tokenObj = JSONObject.parseObject(token);
         log.info("===>tokenObj values:{}" , JSON.toJSONString(tokenObj));
-        request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
-        request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
+        request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.get("account").toString());
+        String jsonString2 = tokenObj.get("platBrhMap").toString();
+        Map stringToMap = JSONObject.parseObject(jsonString2);
+        log.info("===>stringToMap :{}" , JSONObject.toJSONString(stringToMap));
+        request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , stringToMap
                 .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
     }
 
