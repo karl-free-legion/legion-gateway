@@ -78,6 +78,7 @@ public class TokenFilter extends AbstractTokenFilter {
         }
 
         String encToken = request.getHeader(ConstantsValues.X_AUTH_TOKEN);
+        log.info("===>encToken values:{}" , encToken);
 
         //验证token不可为空
         if(StringUtils.isBlank(encToken)){
@@ -92,7 +93,7 @@ public class TokenFilter extends AbstractTokenFilter {
         }
         //解密token
         String token = getDecToken(encToken);
-
+        log.info("===>token values:{}" , token);
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
         log.info("===>tokenObj values:{}" , JSONObject.toJSONString(tokenObj));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
