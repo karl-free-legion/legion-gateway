@@ -9,7 +9,7 @@ public class ConstantsValues {
 
     public static final String  X_PRE_TOKEN = "user_token_";
 
-    public static final  String X_AUTH_TOKEN = "X-AUTH-TOKEN";
+    public static final  String X_AUTH_TOKEN = "x-auth-token";
 
     public static final  String X_ACCOUNT = "X-ACCOUNT";
 
