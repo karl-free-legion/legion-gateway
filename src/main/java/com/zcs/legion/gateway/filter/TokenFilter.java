@@ -95,7 +95,8 @@ public class TokenFilter extends AbstractTokenFilter {
         String token = getDecToken(encToken);
         log.info("===>token values:{}" , token);
         EncrptGlobalToken tokenObj = JSON.parseObject(token , EncrptGlobalToken.class);
-        log.info("===>tokenObj values:{}" , JSONObject.toJSONString(tokenObj));
+        log.info("===>tokenObj values:{}" , JSON.toJSONString(tokenObj));
+        log.info("===>groupTag values:{}" , JSON.toJSONString(groupTag));
         request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
         request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
                 .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
