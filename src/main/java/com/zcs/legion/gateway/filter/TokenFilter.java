@@ -1,9 +1,7 @@
 package com.zcs.legion.gateway.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.legion.core.exception.LegionException;
+import com.alibaba.fastjson.JSONObject;
 import com.zcs.legion.gateway.common.ConstantsValues;
-import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
 import com.zcs.legion.gateway.filter.exception.InvalidTokenException;
 import com.zcsmart.ccks.SE;
@@ -43,9 +41,6 @@ public class TokenFilter extends AbstractTokenFilter {
     @Autowired
     RedisTemplate redisTemplate;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
     private static SE se = null;
 
 
@@ -84,15 +79,13 @@ public class TokenFilter extends AbstractTokenFilter {
             throw TOKEN_EXPIRE_OUT;
         }
         //解密token
-        try {
-            String token = getDecToken(encToken);
-            EncrptGlobalToken tokenObj = objectMapper.readValue(token, EncrptGlobalToken.class);
-            request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
-            request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
-                    .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
-        }catch (IOException e){
-            throw new LegionException(-1 , "convert failed！");
-        }
+        String token = getDecToken(encToken);
+        JSONObject tokenObj = JSONObject.parseObject(token);
+        request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.get("account").toString());
+        String jsonString2 = tokenObj.get("platBrhMap").toString();
+        Map stringToMap = JSONObject.parseObject(jsonString2);
+        request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , stringToMap
+                .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
     }
     /**
      * token解密
