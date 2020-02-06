@@ -1,7 +1,7 @@
 package com.zcs.legion.gateway.filter;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.legion.core.exception.LegionException;
 import com.zcs.legion.gateway.common.ConstantsValues;
 import com.zcs.legion.gateway.componet.EncrptGlobalToken;
 import com.zcs.legion.gateway.config.GroupTag;
@@ -15,7 +15,6 @@ import com.zcsmart.ccks.exceptions.SecurityLibExecption;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -23,7 +22,6 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -59,27 +57,18 @@ public class TokenFilter extends AbstractTokenFilter {
     }
 
     @Override
-    public void handler(HttpServletRequest request) throws InvalidTokenException {
+    public void handler(HttpServletRequest request) throws InvalidTokenException{
         log.debug("come into tokenFilter : {}" , request.getRequestURI());
 
         //验证tag是否存在
         Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         String groupId = (String)pathVariables.get(ConstantsValues.X_GROUP_ID);
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-
         if(groupId.equals(ConstantsValues.X_CHECKE_TAGS) && !checkTag(groupId , tag)){
             throw TAG_CHECKE_ILLEGAL;
         }
 
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while(headerNames.hasMoreElements()){
-            String headerName = headerNames.nextElement();
-            log.info("===>header values:{};{}" , headerName, request.getHeader(headerName));
-        }
-
         String encToken = request.getHeader(ConstantsValues.X_AUTH_TOKEN);
-        log.info("===>encToken values:{}" , encToken);
-
         //验证token不可为空
         if(StringUtils.isBlank(encToken)){
             throw TOKEN_CHECK_EMPTY;
@@ -92,18 +81,17 @@ public class TokenFilter extends AbstractTokenFilter {
             throw TOKEN_EXPIRE_OUT;
         }
         //解密token
-        String token = getDecToken(encToken);
-        log.info("===>token values:{}" , token);
-        JSONObject tokenObj = JSONObject.parseObject(token);
-        log.info("===>tokenObj values:{}" , JSON.toJSONString(tokenObj));
-        request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.get("account").toString());
-        String jsonString2 = tokenObj.get("platBrhMap").toString();
-        Map stringToMap = JSONObject.parseObject(jsonString2);
-        log.info("===>stringToMap :{}" , JSONObject.toJSONString(stringToMap));
-        request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , stringToMap
-                .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
+        try {
+            String token = getDecToken(encToken);
+            ObjectMapper mapper = new ObjectMapper();
+            EncrptGlobalToken tokenObj = mapper.readValue(token, EncrptGlobalToken.class);
+            request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
+            request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
+                    .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
+        }catch (IOException e){
+            throw new LegionException(-1 , "convert failed！");
+        }
     }
-
     /**
      * token解密
      * @param encToken
