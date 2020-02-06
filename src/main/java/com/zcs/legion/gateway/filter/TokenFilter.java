@@ -43,6 +43,9 @@ public class TokenFilter extends AbstractTokenFilter {
     @Autowired
     RedisTemplate redisTemplate;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     private static SE se = null;
 
 
@@ -83,8 +86,7 @@ public class TokenFilter extends AbstractTokenFilter {
         //解密token
         try {
             String token = getDecToken(encToken);
-            ObjectMapper mapper = new ObjectMapper();
-            EncrptGlobalToken tokenObj = mapper.readValue(token, EncrptGlobalToken.class);
+            EncrptGlobalToken tokenObj = objectMapper.readValue(token, EncrptGlobalToken.class);
             request.setAttribute(ConstantsValues.X_ACCOUNT , tokenObj.getAccount());
             request.setAttribute(ConstantsValues.X_BUSINESS_BRH_ID , tokenObj.getPlatBrhMap()
                     .get(groupTag.getGroupIdAndPlatCodes().get(groupId)));
