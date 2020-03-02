@@ -99,12 +99,11 @@ public class GatewayController {
         }
         ResponseEntity<R> entity;
         String tag = StringUtils.substringAfter(request.getRequestURI(), groupId + "/");
-
+        log.info(JSONObject.toJSONString(groupTag));
         //代理定义, 流程定义ProcessTag, Module请求
         if (groupTag.getAgentTags().stream().anyMatch(a -> a.getTag().equalsIgnoreCase(groupId))) {
             entity = broker(request, body);
         } else if (groupTag.getProcessDefines().stream().anyMatch(a -> a.getGroupId().equalsIgnoreCase(groupId) && a.getTag().equalsIgnoreCase(tag))) {
-            log.info(JSONObject.toJSONString(groupTag));
             entity = simple("P", groupId, tag, body, request);
         } else {
             entity = simple("M", groupId, tag, body, request);
