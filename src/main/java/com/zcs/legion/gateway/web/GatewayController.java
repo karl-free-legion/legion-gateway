@@ -1,6 +1,7 @@
 package com.zcs.legion.gateway.web;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.protobuf.util.JsonFormat;
 import com.legion.client.common.LegionConnector;
 import com.legion.client.common.RequestDescriptor;
@@ -103,6 +104,7 @@ public class GatewayController {
         if (groupTag.getAgentTags().stream().anyMatch(a -> a.getTag().equalsIgnoreCase(groupId))) {
             entity = broker(request, body);
         } else if (groupTag.getProcessDefines().stream().anyMatch(a -> a.getGroupId().equalsIgnoreCase(groupId) && a.getTag().equalsIgnoreCase(tag))) {
+            log.info(JSONObject.toJSONString(groupTag));
             entity = simple("P", groupId, tag, body, request);
         } else {
             entity = simple("M", groupId, tag, body, request);
